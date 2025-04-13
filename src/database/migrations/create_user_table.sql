@@ -1,0 +1,8 @@
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    cpf VARCHAR(11) PRIMARY KEY,
+    username VARCHAR(60) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    birthdate DATE NOT NULL,
+    encrypted_password TEXT NOT NULL
+);
