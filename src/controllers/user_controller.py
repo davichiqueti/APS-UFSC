@@ -25,5 +25,10 @@ class UserController:
         )
         self._user_repository.add(user)
 
-    def get_user_by_username(self, username: str):
-        return self._user_repository.find_by_username(username)
+    def get_user_by_username(self, username: str) -> dict:
+        user = self._user_repository.find_by_username(username)
+        # Retornando apenas dados básicos
+        return {
+            "id": user.id,
+            "username": user.username
+        }

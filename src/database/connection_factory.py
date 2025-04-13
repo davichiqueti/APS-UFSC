@@ -5,4 +5,5 @@ import os
 
 # Load environment variables from .env file
 load_dotenv()
-db_connection = create_engine(os.environ["DATABASE_CONN_STRING"]).connect()
+db_engine = create_engine(os.environ["DATABASE_CONN_STRING"])
+db_connection = db_engine.connect()

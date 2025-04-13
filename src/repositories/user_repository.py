@@ -10,8 +10,8 @@ class UserRepository(BaseRepository):
 
     def add(self, user: User):
         query = text("""
-        INSERT INTO users (cpf, username, email, birthdate)
-        VALUES (:cpf, :username, :email, :birthdate)
+        INSERT INTO users (cpf, username, email, birthdate, encrypted_password)
+        VALUES (:cpf, :username, :email, :birthdate, :encrypted_password)
         """)
         self._conn.execute(
             statement=query, 
@@ -19,22 +19,24 @@ class UserRepository(BaseRepository):
                 "cpf": user.cpf,
                 "username": user.username,
                 "email": user.email,
-                "birthdate": user.birthdate,
+                "birthdate": user.birthdate.isoformat(),  # Convertendo objeto de data para ISO formato aceito pelo banco
                 "encrypted_password": user.encrypted_password
             }
         )
 
     def find_by_username(self, username: str) -> User | None:
-        query = text("SELECT cpf, username, email, birthdate FROM users WHERE username = :username")
+        query = text("SELECT id, cpf, username, email, birthdate, encrypted_password FROM users WHERE username = :username")
         row = self._conn.execute(
             statement=query,
             parameters={"username": username}
         ).fetchone()
         if row:
             return User(
-                cpf=row[0],
-                username=row[1],
-                email=row[2],
-                birthdate=date.fromisoformat(row[3])
+                id=row[0],
+                cpf=row[1],
+                username=row[2],
+                email=row[3],
+                birthdate=row[4],
+                encrypted_password=row[5]
             )
         return None

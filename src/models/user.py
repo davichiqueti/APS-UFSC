@@ -30,19 +30,11 @@ class User:
         self.encrypted_password = encrypted_password
 
     @property
-    def id(self):
+    def id(self) -> int:
         return self._id
 
     @property
-    def encrypted_password(self):
-        return self._encrypted_password
-
-    @encrypted_password.setter
-    def encrypted_password(self, value):
-        self._encrypted_password = value
-
-    @property
-    def cpf(self):
+    def cpf(self) -> str:
         return self._cpf
 
     @cpf.setter
@@ -51,7 +43,7 @@ class User:
         self._cpf = value
 
     @property
-    def email(self):
+    def email(self) -> str:
         return self._email
 
     @email.setter
@@ -59,13 +51,21 @@ class User:
         self._email = value
 
     @property
-    def birthdate(self):
+    def birthdate(self) -> date:
         return self._birthdate
 
     @birthdate.setter
     def birthdate(self, value):
         self.validate_birthdate(value)
         self._birthdate = value
+
+    @property
+    def encrypted_password(self) -> str:
+        return self._encrypted_password
+
+    @encrypted_password.setter
+    def encrypted_password(self, value):
+        self._encrypted_password = value
 
     def validate_cpf(self, cpf: str):
         # Lidar com tipo de dado
