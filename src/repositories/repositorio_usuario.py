@@ -1,13 +1,14 @@
-from repositories.base_repository import BaseRepository
+from repositories.repositorio_base import RepositorioBase
 from models.usuario import Usuario
 from sqlalchemy.sql import text
+import sqlalchemy
 
 
-class UserRepository(BaseRepository):
-    def __init__(self, connection):
+class RepositorioUsuario(RepositorioBase):
+    def __init__(self, connection: sqlalchemy.engine.Connection | None = None):
         super().__init__(connection)
 
-    def add(self, user: Usuario):
+    def criar(self, user: Usuario):
         query = text("""
         INSERT INTO users (cpf, username, email, birthdate, encrypted_password)
         VALUES (:cpf, :username, :email, :birthdate, :encrypted_password)
