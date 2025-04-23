@@ -10,8 +10,8 @@ class RepositorioUsuario(RepositorioBase):
 
     def criar(self, user: Usuario):
         query = text("""
-        INSERT INTO users (cpf, username, email, birthdate, encrypted_password)
-        VALUES (:cpf, :username, :email, :birthdate, :encrypted_password)
+        INSERT INTO usuarios (cpf, nome, email, foto, data_nascimento, senha_criptografada)
+        VALUES (:cpf, :nome, :email, :foto, :data_nascimento, :senha_criptografada)
         """)
         self._conn.execute(
             statement=query, 
@@ -19,10 +19,12 @@ class RepositorioUsuario(RepositorioBase):
                 "cpf": user.cpf,
                 "nome": user.nome,
                 "email": user.email,
+                "foto": user.foto,
                 "data_nascimento": user.data_nascimento.isoformat(),  # Convertendo objeto de data para ISO formato aceito pelo banco
                 "senha_criptografada": user.senha_criptografada
             }
         )
+        self._conn.commit()
 
     def busca_por_nome(self, nome: str) -> Usuario | None:
         query = text("""
