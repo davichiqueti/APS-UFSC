@@ -13,18 +13,18 @@ class RepositorioUsuario(RepositorioBase):
         INSERT INTO usuarios (cpf, nome, email, foto, data_nascimento, senha_criptografada)
         VALUES (:cpf, :nome, :email, :foto, :data_nascimento, :senha_criptografada)
         """)
-        self._conn.execute(
-            statement=query, 
-            parameters={
-                "cpf": user.cpf,
-                "nome": user.nome,
-                "email": user.email,
-                "foto": user.foto,
-                "data_nascimento": user.data_nascimento.isoformat(),  # Convertendo objeto de data para ISO formato aceito pelo banco
-                "senha_criptografada": user.senha_criptografada
-            }
-        )
-        self._conn.commit()
+        with self._conn.begin() as transaction:
+            self._conn.execute(
+                statement=query, 
+                parameters={
+                    "cpf": user.cpf,
+                    "nome": user.nome,
+                    "email": user.email,
+                    "foto": user.foto,
+                    "data_nascimento": user.data_nascimento.isoformat(),  # Convertendo objeto de data para ISO formato aceito pelo banco
+                    "senha_criptografada": user.senha_criptografada
+                }
+            )
 
     def busca_por_nome(self, nome: str) -> Usuario | None:
         query = text("""
