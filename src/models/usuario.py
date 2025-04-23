@@ -62,12 +62,12 @@ class Usuario():
         self._data_nascimento = value
 
     @property
-    def encrypted_password(self) -> str:
-        return self._encrypted_password
+    def senha_criptografada(self) -> str:
+        return self._senha_criptografada
 
-    @encrypted_password.setter
-    def encrypted_password(self, value):
-        self._encrypted_password = value
+    @senha_criptografada.setter
+    def senha_criptografada(self, value):
+        self._senha_criptografada = value
 
     def validar_cpf(self, cpf: str):
         # Lidar com tipo de dado
