@@ -20,7 +20,10 @@ class ControladorUsuario:
         return
 
     def abrir_tela_cadastro(self):
-        self.tela_usuario.exibir_tela_cadastro(callback_cadastro=self.cadastrar_conta)
+        self.tela_usuario.exibir_tela_cadastro(
+            callback_cadastro=self.cadastrar_conta,
+            callback_abrir_login=self.abrir_tela_login
+        )
 
     def cadastrar_conta(
         self,

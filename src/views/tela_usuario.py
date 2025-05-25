@@ -8,10 +8,10 @@ class TelaUsuario():
     def __init__(self):
         pass
 
-    def exibir_tela_cadastro(self, callback_cadastro: Callable):
+    def exibir_tela_cadastro(self, callback_cadastro: Callable, callback_abrir_login: Callable):
         root = tk.Tk()
         root.title("Cadastrar Conta")
-        root.geometry("400x500")
+        root.geometry("400x550")
 
         tk.Label(root, text="CADASTRO", font=("Arial", 20, "bold")).pack(pady=10)
 
@@ -81,6 +81,12 @@ class TelaUsuario():
             text="Cadastrar",
             command=cadastrar_usuario
         ).pack(pady=10)
+
+        def acao_ir_para_login():
+            root.destroy()  # Fecha a janela de cadastro # Changed from root_login
+            callback_abrir_login() # Chama o callback para abrir a tela de login
+
+        tk.Button(root, text="Já tem uma conta? Entre aqui!", command=acao_ir_para_login).pack(pady=10)  # Changed from root_login
 
 
 # Ensure you have 'import tkinter as tk', 'from tkinter import messagebox',

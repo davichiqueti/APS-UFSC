@@ -11,4 +11,4 @@ class ControladorSistema:
         self.controlador_usuario.iniciar()
 
     def iniciar(self):
-        self.controlador_usuario.abrir_tela_cadastro()
+        self.controlador_usuario.abrir_tela_login()
