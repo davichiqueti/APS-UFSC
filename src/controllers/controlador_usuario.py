@@ -83,13 +83,30 @@ class ControladorUsuario:
         if not usuario_encontrado:
             raise ValueError(f"Usuário '{nome_usuario}' não encontrado.")
 
-        # Criptografa a senha digitada para comparação, usando o mesmo método da tela de cadastro
-        senha_digitada_criptografada = cipher.encrypt(senha_digitada.encode('utf-8')).decode('utf-8')
+        try:
+            # A senha armazenada é uma string (token Fernet), precisamos encodá-la para bytes
+            senha_armazenada_token_bytes = usuario_encontrado.senha_criptografada.encode('utf-8')
+            
+            # Descriptografar a senha armazenada no banco
+            senha_descriptografada_bytes = cipher.decrypt(senha_armazenada_token_bytes)
+            senha_descriptografada_str = senha_descriptografada_bytes.decode('utf-8')
 
-        if senha_digitada_criptografada != usuario_encontrado.senha_criptografada: #
-            raise ValueError("Senha incorreta.")
+            # Comparar a senha digitada (em texto plano) com a senha descriptografada
+            if senha_digitada != senha_descriptografada_str:
+                raise ValueError("Senha incorreta.")
+
+        except ValueError as e: # Captura o ValueError de "Senha incorreta."
+            raise e 
+        except Exception as e:
+            # cryptography.fernet.InvalidToken será uma das exceções se o token for inválido/corrompido
+            # Ou se a chave de criptografia mudou desde que a senha foi criptografada.
+            print(f"Erro ao descriptografar a senha ou token inválido: {e}")
+            raise ValueError("Erro ao verificar a senha. Contate o suporte.")
 
         self._usuario_logado = usuario_encontrado
+
+        
+
         # Você pode adicionar uma mensagem de sucesso ou log aqui, se desejar.
         # Ex: print(f"Login bem-sucedido! Bem-vindo(a), {self._usuario_logado.nome}!")
         # Após o login, a tela de login (view) se encarregará de fechar e

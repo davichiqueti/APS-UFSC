@@ -12,3 +12,4 @@ class ControladorSistema:
 
     def iniciar(self):
         self.controlador_usuario.abrir_tela_login()
+

@@ -37,7 +37,7 @@ class RepositorioUsuario(RepositorioBase):
             data_nascimento,
             senha_criptografada
         FROM usuarios
-        WHERE nome = :nome"
+        WHERE nome = :nome
         """)
         row = self._conn.execute(
             statement=query,
