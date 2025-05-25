@@ -6,10 +6,10 @@ from utils.encryption import cipher
 
 
 class ControladorUsuario:
-    def __init__(self):
-        user_repository = RepositorioUsuario()
+    def __init__(self, controlador_sistema):
+        self._controlador_sistema = controlador_sistema
         self.tela_usuario = TelaUsuario()
-        self._user_repository = user_repository
+        self._user_repository = RepositorioUsuario()
         self._usuario_logado = None
 
     @property
@@ -104,6 +104,8 @@ class ControladorUsuario:
             raise ValueError("Erro ao verificar a senha. Contate o suporte.")
 
         self._usuario_logado = usuario_encontrado
+
+        self._controlador_sistema.inicializarFeed()
 
         
 
