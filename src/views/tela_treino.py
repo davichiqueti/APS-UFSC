@@ -1,18 +1,18 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from datetime import date
-from ..controllers.controlador_usuario import ControladorUsuario
-from ..controllers.controlador_treino import ControladorTreino
+from controllers.controlador_usuario import ControladorUsuario
+from controllers.controlador_treino import ControladorTreino
 
 class ViewTreino(tk.Tk):
     def __init__(self, controlador_treino: ControladorTreino, controlador_usuario: ControladorUsuario):
         super().__init__()
         self.controlador_treino = controlador_treino
         self.controlador_usuario = controlador_usuario
-        self._imagem_path = "" # Usar _ para indicar que é gerenciado internamente
+        self._imagem_path = ""
 
         self.title("FitUp - Registrar Treino")
-        self.geometry("400x380") # Aumentei um pouco a altura para o label da imagem
+        self.geometry("400x380")
         self.resizable(False, False)
 
         style = ttk.Style(self)
@@ -46,39 +46,39 @@ class ViewTreino(tk.Tk):
         self.lbl_imagem_selecionada = ttk.Label(main_frame, text="Nenhuma imagem selecionada.")
         self.lbl_imagem_selecionada.pack(pady=(0,10))
 
-        self.btn_confirmar_ui = ttk.Button(main_frame, text="CONFIRMAR", command=self.confirmarRegistro) # [cite: 1]
+        self.btn_confirmar_ui = ttk.Button(main_frame, text="CONFIRMAR", command=self.confirmarRegistro)
         self.btn_confirmar_ui.pack(pady=20, fill=tk.X)
 
-        self.registrarTreino() # Prepara a view ao iniciar
+        self.registrarTreino()
 
-    def registrarTreino(self): # [cite: 1]
+    def registrarTreino(self):
         """Prepara a view para um novo registro, limpando os campos."""
         print("[ViewTreino] Método registrarTreino() chamado - limpando campos.")
-        if hasattr(self, 'entry_descricao'): # Garante que os widgets existem
+        if hasattr(self, 'entry_descricao'):
             self.entry_descricao.delete(0, tk.END)
             self.entry_duracao.delete(0, tk.END)
             self._imagem_path = ""
             self.lbl_imagem_selecionada.config(text="Nenhuma imagem selecionada.")
-        return self # Para permitir chamadas encadeadas se desejado
-
-    def informarDescricao(self, descricao_texto: str): # [cite: 1]
+        return self 
+    
+    def informarDescricao(self, descricao_texto: str):
         """Define programaticamente o campo de descrição."""
         print(f"[ViewTreino] Método informarDescricao('{descricao_texto}') chamado.")
         self.entry_descricao.delete(0, tk.END)
         self.entry_descricao.insert(0, descricao_texto)
 
-    def informarDuracao(self, duracao_valor: int): # [cite: 1]
+    def informarDuracao(self, duracao_valor: int):
         """Define programaticamente o campo de duração."""
         print(f"[ViewTreino] Método informarDuracao({duracao_valor}) chamado.")
         self.entry_duracao.delete(0, tk.END)
         self.entry_duracao.insert(0, str(duracao_valor))
 
-    def anexarImagem(self, imagem_caminho: str): # [cite: 1]
+    def anexarImagem(self, imagem_caminho: str):
         """Define programaticamente o caminho da imagem e atualiza o label."""
         print(f"[ViewTreino] Método anexarImagem('{imagem_caminho}') chamado.")
         self._imagem_path = imagem_caminho
         if imagem_caminho:
-            filename = imagem_caminho.split("/")[-1].split("\\")[-1] # Pega nome do arquivo
+            filename = imagem_caminho.split("/")[-1].split("\\")[-1]
             self.lbl_imagem_selecionada.config(text=f"Imagem: {filename}")
         else:
             self.lbl_imagem_selecionada.config(text="Nenhuma imagem selecionada.")
@@ -89,11 +89,10 @@ class ViewTreino(tk.Tk):
             title="Selecione uma imagem",
             filetypes=(("Arquivos de Imagem", "*.jpg *.jpeg *.png *.gif"), ("Todos os arquivos", "*.*"))
         )
-        # Usa o método anexarImagem para manter a lógica centralizada
         self.anexarImagem(file_path if file_path else "")
 
 
-    def confirmarRegistro(self): # [cite: 1]
+    def confirmarRegistro(self):
         """Coleta os dados da view e aciona o controlador para registrar o treino."""
         print("[ViewTreino] Método confirmarRegistro() chamado.")
         descricao = self.entry_descricao.get()
@@ -103,7 +102,7 @@ class ViewTreino(tk.Tk):
         if duracao_str:
             try:
                 duracao_val = int(duracao_str)
-                if duracao_val < 0: # Permite 0, mas não negativo.
+                if duracao_val < 0:
                     messagebox.showwarning("Aviso de Validação", "A 'DURAÇÃO' não pode ser negativa. Será considerada como 0.")
                     duracao = 0
                 else:
@@ -125,10 +124,9 @@ class ViewTreino(tk.Tk):
             view_callback=self
         )
 
-    # Callbacks para o CtrlTreino
     def sucessoRegistro(self):
-        messagebox.showinfo("Sucesso", "Treino processado com sucesso!")
-        self.registrarTreino() # Limpa os campos para um novo registro
+        messagebox.showinfo("Treino registrado com sucesso!")
+        self.registrarTreino() 
 
-    def erroImagemNaoAnexada(self): # Este método é chamado pelo ctrlTreino
-        messagebox.showerror("Erro de Registro", "Falha ao registrar treino: a imagem é necessária (conforme lógica do controlador).")
+    def erroImagemNaoAnexada(self):
+        messagebox.showerror("Você deve anexar uma imagem para registrar o treino.")
