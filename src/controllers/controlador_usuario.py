@@ -63,7 +63,8 @@ class ControladorUsuario:
         """
         self.tela_usuario.exibir_tela_login(
             callback_login=self.efetuar_login,
-            callback_abrir_cadastro=self.abrir_tela_cadastro  # Navigates to existing registration screen
+            callback_abrir_cadastro=self.abrir_tela_cadastro,
+            callback_sucesso_proxima_etapa=self.chama_sistema
         )
 
     def efetuar_login(self, nome_usuario: str, senha_digitada: str):
@@ -104,10 +105,13 @@ class ControladorUsuario:
             raise ValueError("Erro ao verificar a senha. Contate o suporte.")
 
         self._usuario_logado = usuario_encontrado
+        print(usuario_encontrado)
 
+        #self.chama_sistema()
+
+    def chama_sistema(self):
         self._controlador_sistema.inicializarFeed()
 
-        
 
         # Você pode adicionar uma mensagem de sucesso ou log aqui, se desejar.
         # Ex: print(f"Login bem-sucedido! Bem-vindo(a), {self._usuario_logado.nome}!")

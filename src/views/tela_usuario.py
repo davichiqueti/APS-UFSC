@@ -92,7 +92,7 @@ class TelaUsuario():
 # Ensure you have 'import tkinter as tk', 'from tkinter import messagebox',
 # and 'from typing import Callable' at the top of your tela_usuario.py file.
 
-    def exibir_tela_login(self, callback_login: Callable, callback_abrir_cadastro: Callable):
+    def exibir_tela_login(self, callback_login: Callable, callback_abrir_cadastro: Callable, callback_sucesso_proxima_etapa: Callable):
         """
         Cria e exibe a janela de login.
 
@@ -121,6 +121,7 @@ class TelaUsuario():
                 callback_login(nome_usuario, senha)
                 messagebox.showinfo("Login", "Login realizado com sucesso!", parent=root)  # Changed from root_login
                 root.destroy()  # Changed from root_login
+                callback_sucesso_proxima_etapa()
             except ValueError as e: # Captura exceções levantadas pelo controlador
                 messagebox.showerror("Erro de Login", str(e), parent=root)  # Changed from root_login
             except Exception as e: # Captura outras exceções inesperadas
