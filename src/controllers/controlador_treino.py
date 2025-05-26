@@ -16,14 +16,12 @@ class ControladorTreino:
         )
 
     def registrar_treino(self, descricao: str, duracao_str: str, imagem_path: str) -> None:
-        # Obtém usuário e data
+        if not imagem_path:
+            raise ValueError("Você deve anexar uma imagem para registrar o treino.")
+        # Obtém usuário
         usuario = self.ctrl_usuario.usuario_logado
         # Conversão de duração
         duracao = int(duracao_str) if duracao_str else 0
-
-        # Validação de imagem
-        if not imagem_path:
-            raise ValueError("Você deve anexar uma imagem para registrar o treino.")
 
         # Cria e persiste
         treino = Treino(
