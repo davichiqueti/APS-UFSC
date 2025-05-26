@@ -3,6 +3,8 @@ from repositories.repositorio_usuario import RepositorioUsuario
 from views.tela_usuario import TelaUsuario
 from datetime import date
 from utils.encryption import cipher
+from typing import List
+from models.treino import Treino
 
 
 class ControladorUsuario:
@@ -117,3 +119,40 @@ class ControladorUsuario:
         # Ex: print(f"Login bem-sucedido! Bem-vindo(a), {self._usuario_logado.nome}!")
         # Após o login, a tela de login (view) se encarregará de fechar e
         # o fluxo da aplicação poderá seguir para uma tela principal, se houver.
+
+    
+    def buscar_treinos_das_amizades(self) -> List[Treino]:
+        """
+        Busca os treinos de todos os amigos do usuário logado,
+        ordena-os por data (mais recentes primeiro) e os retorna.
+        """
+        if not self._usuario_logado or not hasattr(self._usuario_logado, 'amizades') or not self._usuario_logado.amizades:
+            print("DEBUG [ControladorUsuario.buscar_treinos_das_amizades]: Usuário não logado ou sem amigos.")
+            return []
+
+        print(f"DEBUG [ControladorUsuario.buscar_treinos_das_amizades]: Buscando treinos para amigos de {self._usuario_logado.nome}.")
+        todos_os_treinos: List[Treino] = []
+        
+        # Acessa o controlador_treino através do controlador_sistema
+        controlador_treino = self._controlador_sistema.controlador_treino
+        if not controlador_treino:
+            print("ERRO [ControladorUsuario.buscar_treinos_das_amizades]: ControladorTreino não encontrado via ControladorSistema.")
+            return []
+
+        for amigo in self._usuario_logado.amizades:
+            if amigo and hasattr(amigo, 'id') and amigo.id is not None:
+                print(f"DEBUG [ControladorUsuario.buscar_treinos_das_amizades]: Obtendo treinos do amigo {amigo.nome} (ID: {amigo.id}).")
+                treinos_do_amigo = controlador_treino.obter_treinos_do_usuario(amigo)
+                todos_os_treinos.extend(treinos_do_amigo)
+            else:
+                print(f"WARN [ControladorUsuario.buscar_treinos_das_amizades]: Amigo inválido ou sem ID na lista.")
+        
+        if todos_os_treinos:
+            # Ordena pela data do treino, do mais recente para o mais antigo
+            # Garante que treino.data seja um objeto 'date'
+            todos_os_treinos.sort(key=lambda treino: treino.data if treino.data else date.min, reverse=True)
+            print(f"DEBUG [ControladorUsuario.buscar_treinos_das_amizades]: {len(todos_os_treinos)} treinos de amigos encontrados e ordenados.")
+        else:
+            print("DEBUG [ControladorUsuario.buscar_treinos_das_amizades]: Nenhum treino encontrado nas conexões.")
+            
+        return todos_os_treinos
