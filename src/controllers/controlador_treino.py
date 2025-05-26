@@ -1,5 +1,4 @@
 from datetime import date
-from typing import Optional
 from models.treino import Treino
 from repositories.repositorio_treino import RepositorioTreino
 from views.tela_treino import TelaTreino
@@ -36,7 +35,7 @@ class ControladorTreino:
             data_treino=date.today(),
             curtidas=0
         )
-        novo_id = self.repositorio.adicionar(treino)
+        novo_id = self.repositorio.criar(treino)
         treino.id = novo_id
 
         # Atualiza feed ou próxima etapa
