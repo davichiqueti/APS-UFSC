@@ -23,8 +23,17 @@ class ControladorSistema:
     def inicializarFeed(self):
         usuario_atual = self.controlador_usuario.usuario_logado
         if usuario_atual:
-            print(f"\nControladorSistema: Login bem-sucedido para {usuario_atual.nome}!")
-            print("ControladorSistema: Abrindo a tela principal do sistema (feed)...")
+            print(f"\nDEBUG [ControladorSistema.inicializarFeed]: Usuário {usuario_atual.nome} logado.")
+            
+            # 1. Pede ao ControladorUsuario para buscar os treinos dos amigos
+            print("DEBUG [ControladorSistema.inicializarFeed]: Solicitando treinos das amizades ao ControladorUsuario...")
+            lista_de_treinos_para_o_feed = self.controlador_usuario.buscar_treinos_das_amizades()
+            
+            # 2. Define a lista de treinos na TelaSistema
+            self.tela_sistema.treinos = lista_de_treinos_para_o_feed
+            self.tela_sistema.indice_treino_atual = 0 # Reseta o índice ao carregar novo feed
+            
+            print("DEBUG [ControladorSistema.inicializarFeed]: Configurando e exibindo a tela principal do sistema (feed)...")
             self.tela_sistema.exibir_tela_principal(
                 usuario_logado=usuario_atual,
                 callback_logout=self.efetuar_logout,
