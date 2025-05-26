@@ -1,33 +1,35 @@
 from datetime import date
-from typing import Optional
+from typing import List, Optional
 
 
-class User:
+class Usuario():
     """
     Entidade de usuário do sistema.
-
-    O campo `id` é opcional, pois será preenchido apenas após a persistência no banco de dados.
-    
     """
-
     def __init__(
         self,
         cpf: str,
-        username: str,
+        nome: str,
         email: str,
-        birthdate: date,
-        encrypted_password: str,
-        # ID opcional, usado apenas após a inserção no banco (gerado automaticamente)
-        id: Optional[int] = None,
+        foto: str,
+        data_nascimento: date,
+        senha_criptografada: str,
+        # TODO: Atualizar tipo para o modelo de medalhas
+        medalhas: List = [],
+        amizades: List["Usuario"] = [],
+        id: Optional[int] = None
     ):
         self._id = id
         # Para atributos com "setters" não acessamos diretamente com o prefixo '_'
         # Acessamos como público, assim o "setter" do atributo é chamado. E consequentemente, suas validcoes também
         self.cpf = cpf
-        self.username = username
+        self.nome = nome
         self.email = email
-        self.birthdate = birthdate
-        self.encrypted_password = encrypted_password
+        self.foto = foto
+        self.data_nascimento = data_nascimento
+        self.senha_criptografada = senha_criptografada
+        self.medalhas = medalhas
+        self.amizades = amizades
 
     @property
     def id(self) -> int:
@@ -39,7 +41,7 @@ class User:
 
     @cpf.setter
     def cpf(self, value):
-        self.validate_cpf(value)
+        self.validar_cpf(value)
         self._cpf = value
 
     @property
@@ -51,23 +53,23 @@ class User:
         self._email = value
 
     @property
-    def birthdate(self) -> date:
-        return self._birthdate
+    def data_nascimento(self) -> date:
+        return self._data_nascimento
 
-    @birthdate.setter
-    def birthdate(self, value):
-        self.validate_birthdate(value)
-        self._birthdate = value
+    @data_nascimento.setter
+    def data_nascimento(self, value):
+        self.validar_data_nascimento(value)
+        self._data_nascimento = value
 
     @property
-    def encrypted_password(self) -> str:
-        return self._encrypted_password
+    def senha_criptografada(self) -> str:
+        return self._senha_criptografada
 
-    @encrypted_password.setter
-    def encrypted_password(self, value):
-        self._encrypted_password = value
+    @senha_criptografada.setter
+    def senha_criptografada(self, value):
+        self._senha_criptografada = value
 
-    def validate_cpf(self, cpf: str):
+    def validar_cpf(self, cpf: str):
         # Lidar com tipo de dado
         if not isinstance(cpf, str):
             raise TypeError(
@@ -78,16 +80,16 @@ class User:
                 "CPF inválido. Deve conter os exatos 11 caracteres númericos."
             )
 
-    def validate_birthdate(self, birthdate: date):
+    def validar_data_nascimento(self, data_nascimento: date):
         # Lidar com tipo de dado
-        if not isinstance(birthdate, date):
+        if not isinstance(data_nascimento, date):
             raise TypeError(
                 "Data de nascimento inválida. parâmetro deve ser do tipo datetime.date"
             )
         today = date.today()
-        age = today.year - birthdate.year
-        age = today.year - birthdate.year
-        if age == 12 and (today.month, today.day) < (birthdate.month, birthdate.day):
+        age = today.year - data_nascimento.year
+        age = today.year - data_nascimento.year
+        if age == 12 and (today.month, today.day) < (data_nascimento.month, data_nascimento.day):
             # Lidando com usuários que fazem aniversário no ano atual
             age -= 1
         if age < 12:
