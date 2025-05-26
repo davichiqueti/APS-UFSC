@@ -2,6 +2,7 @@ from datetime import date
 from models.treino import Treino
 from repositories.repositorio_treino import RepositorioTreino
 from views.tela_treino import TelaTreino
+from models.usuario import Usuario
 
 class ControladorTreino:
     def __init__(self, controlador_sistema, controlador_usuario):
@@ -38,3 +39,14 @@ class ControladorTreino:
         )
         novo_id = self.repositorio.criar(treino)
         treino.id = novo_id
+
+    
+    def obter_treinos_do_usuario(self, usuario: Usuario) -> list[Treino]:
+        """
+        Obtém todos os treinos de um usuário específico.
+        """
+        if not usuario or not hasattr(usuario, 'id') or usuario.id is None:
+            print(f"WARN [ControladorTreino]: Tentativa de buscar treinos para usuário inválido: {usuario}")
+            return []
+        # print(f"DEBUG [ControladorTreino]: Buscando treinos para usuário ID: {usuario.id} ({usuario.nome if hasattr(usuario, 'nome') else 'Nome não disponível'})")
+        return self.repositorio.buscar_por_usuario_id(usuario.id)
