@@ -35,6 +35,3 @@ class ControladorTreino:
         )
         novo_id = self.repositorio.criar(treino)
         treino.id = novo_id
-
-        # Atualiza feed ou próxima etapa
-        self.ctrl_sistema.atualizar_feed()
