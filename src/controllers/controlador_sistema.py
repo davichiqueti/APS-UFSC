@@ -8,7 +8,7 @@ class ControladorSistema:
     def __init__(self):
         self.tela_sistema = TelaSistema()
         self.controlador_usuario = ControladorUsuario(self)
-        self.controlador_treino = ControladorTreino(self, self.controlador_usuario)
+        self.controlador_treino = ControladorTreino(self)
         self.view_treino_atual = None
 
     def abrir_tela_usuario(self):

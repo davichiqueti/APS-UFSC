@@ -5,9 +5,8 @@ from views.tela_treino import TelaTreino
 from models.usuario import Usuario
 
 class ControladorTreino:
-    def __init__(self, controlador_sistema, controlador_usuario):
+    def __init__(self, controlador_sistema):
         self.ctrl_sistema = controlador_sistema
-        self.ctrl_usuario = controlador_usuario
         self.repositorio = RepositorioTreino()
         self.tela_treino = TelaTreino()
 
