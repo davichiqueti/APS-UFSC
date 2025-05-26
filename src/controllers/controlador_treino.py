@@ -1,19 +1,43 @@
 from datetime import date
+from typing import Optional
+from models.treino import Treino
 from repositories.repositorio_treino import RepositorioTreino
-from models.usuario import Usuario
-from views.tela_treino import ViewTreino
+from views.tela_treino import TelaTreino
 
 class ControladorTreino:
-    def __init__(self):
-        self.repositorio_treino = RepositorioTreino()
+    def __init__(self, controlador_sistema, controlador_usuario):
+        self.ctrl_sistema = controlador_sistema
+        self.ctrl_usuario = controlador_usuario
+        self.repositorio = RepositorioTreino()
+        self.tela_treino = TelaTreino()
 
-    def validaSeImagemFoiAnexada(self, imagem_path: str) -> bool:
-        return bool(imagem_path)
+    def abrir_tela_registro(self):
+        self.tela_treino.exibir_tela_registro(
+            callback_registrar=self.registrar_treino
+        )
 
-    def registrarTreino(self, descricao: str, duracao: int, imagem_path: str,
-                        usuario: Usuario, data_registro: date, view_callback: ViewTreino) -> None: # Usando string para forward reference
-        imagem_anexada_e_valida = self.validaImagemFoiAnexada(imagem_path)
-        if not imagem_anexada_e_valida:
-            if hasattr(view_callback, 'erroImagemNaoAnexada'):
-                view_callback.erroImagemNaoAnexada()
-            return
+    def registrar_treino(self, descricao: str, duracao_str: str, imagem_path: str) -> None:
+        # Obtém usuário e data
+        usuario = self.ctrl_usuario.usuario_logado
+        # Conversão de duração
+        duracao = int(duracao_str) if duracao_str else 0
+
+        # Validação de imagem
+        if not imagem_path:
+            raise ValueError("Você deve anexar uma imagem para registrar o treino.")
+
+        # Cria e persiste
+        treino = Treino(
+            id_treino=None,
+            descricao=descricao,
+            duracao=duracao,
+            imagem=imagem_path,
+            usuario=usuario,
+            data_treino=date.today(),
+            curtidas=0
+        )
+        novo_id = self.repositorio.adicionar(treino)
+        treino.id = novo_id
+
+        # Atualiza feed ou próxima etapa
+        self.ctrl_sistema.atualizar_feed()
