@@ -14,12 +14,15 @@ class ControladorTreino:
         self.tela_treino.exibir_tela_registro(
             callback_registrar=self.registrar_treino
         )
+    
+    def pega_usuario_logado(self):
+        self.ctrl_sistema.buscar_usuario_logado()
 
     def registrar_treino(self, descricao: str, duracao_str: str, imagem_path: str) -> None:
         if not imagem_path:
             raise ValueError("Você deve anexar uma imagem para registrar o treino.")
         # Obtém usuário
-        usuario = self.ctrl_usuario.usuario_logado
+        usuario = self.pega_usuario_logado()
         # Conversão de duração
         duracao = int(duracao_str) if duracao_str else 0
 

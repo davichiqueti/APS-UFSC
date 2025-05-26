@@ -14,6 +14,9 @@ class ControladorSistema:
     def abrir_tela_usuario(self):
         self.controlador_usuario.iniciar()
 
+    def buscar_usuario_logado(self):
+        self.controlador_usuario.usuario_logado
+
     def iniciar(self):
         self.controlador_usuario.abrir_tela_login()
 
