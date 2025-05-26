@@ -1,11 +1,10 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from datetime import date
-from controllers.controlador_usuario import ControladorUsuario
-from controllers.controlador_treino import ControladorTreino
+
 
 class ViewTreino(tk.Tk):
-    def __init__(self, controlador_treino: ControladorTreino, controlador_usuario: ControladorUsuario):
+    def __init__(self, controlador_treino, controlador_usuario):
         super().__init__()
         self.controlador_treino = controlador_treino
         self.controlador_usuario = controlador_usuario

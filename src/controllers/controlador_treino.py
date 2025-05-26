@@ -1,7 +1,7 @@
 from datetime import date
-from ..repositories.repositorio_treino import RepositorioTreino
-from ..models.usuario import Usuario
-from ..views.tela_treino import ViewTreino
+from repositories.repositorio_treino import RepositorioTreino
+from models.usuario import Usuario
+from views.tela_treino import ViewTreino
 
 class ControladorTreino:
     def __init__(self):

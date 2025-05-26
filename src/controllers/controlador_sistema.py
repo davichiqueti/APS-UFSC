@@ -1,11 +1,15 @@
 #from views.tela_sistema import TelaSistema
 from controllers.controlador_usuario import ControladorUsuario
+from controllers.controlador_treino import ControladorTreino
 from views.tela_sistema import TelaSistema
+from views.tela_treino import ViewTreino
 
 class ControladorSistema:
     def __init__(self):
         self.tela_sistema = TelaSistema()
+        self.controlador_treino = ControladorTreino()
         self.controlador_usuario = ControladorUsuario(self)
+        self.view_treino_atual = None
 
     def abrir_tela_usuario(self):
         self.controlador_usuario.iniciar()
@@ -56,4 +60,7 @@ class ControladorSistema:
     def navegar_para_registrar_treino(self):
         print("ControladorSistema: Navegando para Tela de Registrar Treino.")
         self.tela_sistema.fechar_tela()
+
+        self.view_treino_atual = ViewTreino(self.controlador_treino, self.controlador_usuario)
+
         # self.inicializarFeed() # Exemplo: voltar para o feed depois
