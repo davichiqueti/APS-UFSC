@@ -24,8 +24,10 @@ class ControladorTreino:
         # Obtém usuário
         usuario = self.pega_usuario_logado()
         # Conversão de duração
-        duracao = int(duracao_str) if duracao_str else 0
-
+        try:
+            duracao = int(duracao_str) if duracao_str else 0
+        except:
+            duracao = 0
         # Cria e persiste
         treino = Treino(
             id_treino=None,
