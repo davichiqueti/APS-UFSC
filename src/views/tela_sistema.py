@@ -29,6 +29,9 @@ class TelaSistema:
                                callback_abrir_perfil: Callable,
                                callback_abrir_busca: Callable,
                                callback_registrar_treino: Callable):
+        
+        
+
         self.root_sistema = tk.Tk()
         self.root_sistema.title(f"Feed - Bem-vindo(a), {usuario_logado.nome}!")
         self.root_sistema.geometry("800x650")
@@ -68,7 +71,7 @@ class TelaSistema:
     def _atualizar_exibicao_treino(self):
         if not self.treinos:
             self.lbl_autor_treino.config(text="")
-            self.lbl_descricao_treino.config(text="Nenhum treino para exibir.")
+            self.lbl_descricao_treino.config(text="Suas amizades ainda não registraram treinos.")
             self.lbl_detalhes_treino.config(text="")
             self.btn_curtir_treino.config(text="❤️ Curtir (-)", state=tk.DISABLED)
             return

@@ -121,6 +121,7 @@ class ControladorUsuario:
         # o fluxo da aplicação poderá seguir para uma tela principal, se houver.
 
     
+    #mudar nome no diagrama
     def buscar_treinos_das_amizades(self) -> List[Treino]:
         """
         Busca os treinos de todos os amigos do usuário logado,

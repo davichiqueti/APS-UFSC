@@ -5,6 +5,7 @@ from models.treino import Treino
 from sqlalchemy.sql import text
 import sqlalchemy
 from datetime import date
+from typing import List
 
 from models.usuario import Usuario
 
@@ -99,3 +100,9 @@ class RepositorioTreino(RepositorioBase):
             treinos_encontrados.append(treino)
         
         return treinos_encontrados
+    
+
+
+    def buscar_treinos_amizades(self, usuario: Usuario):
+
+        return List[Treino]

@@ -27,7 +27,10 @@ class ControladorSistema:
             
             # 1. Pede ao ControladorUsuario para buscar os treinos dos amigos
             print("DEBUG [ControladorSistema.inicializarFeed]: Solicitando treinos das amizades ao ControladorUsuario...")
-            lista_de_treinos_para_o_feed = self.controlador_usuario.buscar_treinos_das_amizades()
+            usuario = self.controlador_usuario.usuario_logado
+
+
+            lista_de_treinos_para_o_feed = self.controlador_treino.buscar_treinos_amizades(usuario)
             
             # 2. Define a lista de treinos na TelaSistema
             self.tela_sistema.treinos = lista_de_treinos_para_o_feed
