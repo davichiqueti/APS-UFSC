@@ -23,8 +23,9 @@ class RepositorioTreino(RepositorioBase):
                     statement = query,
                     parameters = {
                         "descricao": treino.descricao,
-                        "foto": treino.imagem, 
-                        "usuario": treino.usuario.id if treino.usuario else None,
+                        "imagem": treino.imagem, 
+                        "duracao": treino.duracao,
+                        "usuario": treino.usuario.id,
                         "curtidas": treino.curtidas,
                         "data": treino.data.isoformat() if treino.data else None
                     }
