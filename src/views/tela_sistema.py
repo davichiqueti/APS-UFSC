@@ -195,15 +195,32 @@ class TelaSistema:
         
     def acao_curtir_treino(self):
         if not self.root_sistema: return
-        if not self.treinos or not (0 <= self.indice_treino_atual < len(self.treinos)): return 
+        if not self.treinos or not (0 <= self.indice_treino_atual < len(self.treinos)):
+            return 
+
         treino_atual: Treino = self.treinos[self.indice_treino_atual]
+        
         if self.controlador_treino_ref and hasattr(self.controlador_treino_ref, 'curtir_treino'):
-            sucesso_curtida = self.controlador_treino_ref.curtir_treino(treino_atual.id)
+            # TENTA ACESSAR O ATRIBUTO CORRETO DO ID DO TREINO
+            # Se o atributo no objeto Treino for 'id_treino':
+            id_do_treino_para_curtir = treino_atual.id_treino 
+            # Se o atributo no objeto Treino for 'id' (e o erro foi um engano):
+            # id_do_treino_para_curtir = treino_atual.id
+
+            print(f"DEBUG [TelaSistema.acao_curtir_treino]: Tentando curtir treino com ID: {id_do_treino_para_curtir}")
+            
+            if id_do_treino_para_curtir is None:
+                messagebox.showerror("Erro", "ID do treino inválido para curtir.", parent=self.root_sistema)
+                return
+
+            sucesso_curtida = self.controlador_treino_ref.curtir_treino(id_do_treino_para_curtir)
             if sucesso_curtida:
                 treino_atual.curtidas += 1 
-                self.exibirTreino(self.indice_treino_atual)
-            else: messagebox.showerror("Erro", "Não foi possível registrar a curtida.", parent=self.root_sistema)
-        else: print("ERRO [TelaSistema.acao_curtir_treino]: Referência ao ControladorTreino não configurada.")
+                self.exibirTreino(self.indice_treino_atual) # Reexibe para atualizar a contagem de curtidas
+            else:
+                messagebox.showerror("Erro", "Não foi possível registrar a curtida.", parent=self.root_sistema)
+        else:
+            print("ERRO [TelaSistema.acao_curtir_treino]: Referência ao ControladorTreino não configurada.")
 
     def fechar_tela(self):
         if self.root_sistema and self.root_sistema.winfo_exists():
