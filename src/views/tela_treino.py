@@ -69,3 +69,4 @@ class TelaTreino:
         btn_confirmar.pack(pady=20, fill=tk.X)
 
         root.mainloop()
+#teste
