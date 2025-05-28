@@ -14,8 +14,8 @@ class RepositorioTreino(RepositorioBase):
 
     def criar(self, treino: Treino) -> None:
         query = text("""
-        INSERT INTO treinos (descricao, foto, usuario, curtidas, "data")
-        VALUES (:descricao, :foto, :usuario, :curtidas, :data)
+        INSERT INTO treinos (descricao, imagem, duracao, usuario, curtidas, data)
+        VALUES (:descricao, :imagem, :duracao, :usuario, :curtidas, :data)
         """)
         with self._conn.begin() as transaction:
             self._conn.execute(

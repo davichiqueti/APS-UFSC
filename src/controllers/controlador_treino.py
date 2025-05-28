@@ -17,7 +17,7 @@ class ControladorTreino:
         )
     
     def pega_usuario_logado(self):
-        self._controlador_sistema.buscar_usuario_logado()
+        return self._controlador_sistema.buscar_usuario_logado() 
 
     def registrar_treino(self, descricao: str, duracao_str: str, imagem_path: str) -> None:
         if not imagem_path:
@@ -39,7 +39,7 @@ class ControladorTreino:
             curtidas=0
         )
         novo_id = self.repositorio.criar(treino)
-        treino.id = novo_id
+        treino.id_treino = novo_id
 
     
     def obter_treinos_do_usuario(self, usuario: Usuario) -> list[Treino]:
