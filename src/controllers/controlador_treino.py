@@ -22,14 +22,14 @@ class ControladorTreino:
     def registrar_treino(self, descricao: str, duracao_str: str, imagem_path: str) -> None:
         if not imagem_path:
             raise ValueError("Você deve anexar uma imagem para registrar o treino.")
-        # Obtém usuário
+
         usuario = self.pega_usuario_logado()
-        # Conversão de duração
+
         try:
             duracao = int(duracao_str) if duracao_str else 0
         except:
             duracao = 0
-        # Cria e persiste
+
         treino = Treino(
             descricao=descricao,
             duracao=duracao,
@@ -43,23 +43,18 @@ class ControladorTreino:
 
     
     def obter_treinos_do_usuario(self, usuario: Usuario) -> list[Treino]:
-        """
-        Obtém todos os treinos de um usuário específico.
-        """
+
         if not usuario or not hasattr(usuario, 'id') or usuario.id is None:
             print(f"WARN [ControladorTreino]: Tentativa de buscar treinos para usuário inválido: {usuario}")
             return []
-        # print(f"DEBUG [ControladorTreino]: Buscando treinos para usuário ID: {usuario.id} ({usuario.nome if hasattr(usuario, 'nome') else 'Nome não disponível'})")
+
         return self.repositorio.buscar_por_usuario_id(usuario.id)
     
 
 
 
     def buscar_treinos_amizades(self, usuario_logado: Usuario) -> List[Treino]:
-        """
-        Busca os treinos de todos os amigos do usuario_logado, chamando o repositório.
-        A ordenação já é feita pelo repositório.
-        """
+
         if not usuario_logado or not hasattr(usuario_logado, 'amizades') or not usuario_logado.amizades:
             print("DEBUG [ControladorTreino.buscar_treinos_amizades]: Usuário não logado ou sem amigos para buscar treinos.")
             return []
@@ -72,12 +67,8 @@ class ControladorTreino:
             
         print(f"DEBUG [ControladorTreino.buscar_treinos_amizades]: Buscando treinos para IDs de amigos: {ids_dos_amigos}")
         
-        # Chama o novo método do repositório que busca por uma lista de IDs
+
         treinos_dos_amigos = self.repositorio.buscar_treinos_amizades(ids_dos_amigos)
-        
-        # A ordenação já deve vir do repositório (ORDER BY t.data DESC)
-        # Se precisar reordenar ou fazer lógica adicional, pode ser feito aqui.
-        # Ex: treinos_dos_amigos.sort(key=lambda treino: treino.data if treino.data else date.min, reverse=True)
         
         if treinos_dos_amigos:
             print(f"DEBUG [ControladorTreino.buscar_treinos_amizades]: {len(treinos_dos_amigos)} treinos de amigos retornados pelo repositório.")
@@ -86,6 +77,6 @@ class ControladorTreino:
             
         return treinos_dos_amigos
 
-    def curtir_treino(self, treino_id: int) -> bool: # Seu método existente
+    def curtir_treino(self, treino_id: int) -> bool:
         if treino_id is None: return False
         return self.repositorio.salvar_curtida(treino_id)

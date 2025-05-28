@@ -23,17 +23,17 @@ class TelaSistema:
         self.controlador_treino_ref = None
         self.usuario_logado_atual = None
 
-    # Método chamado pelo ControladorSistema, conforme diagrama
+
     def exibir_tela_principal(self, usuario_logado: Usuario, 
-                               lista_de_treinos: List[Treino], # Recebe a lista de treinos
+                               lista_de_treinos: List[Treino],
                                controlador_treino_ref, 
                                callback_logout: Callable,
                                callback_abrir_perfil: Callable,
                                callback_abrir_busca: Callable,
                                callback_registrar_treino: Callable):
         
-        self.treinos = lista_de_treinos # Armazena a lista de treinos recebida
-        self.indice_treino_atual = 0    # Reseta o índice
+        self.treinos = lista_de_treinos 
+        self.indice_treino_atual = 0 
         self.controlador_treino_ref = controlador_treino_ref
         self.usuario_logado_atual = usuario_logado
 
@@ -84,15 +84,15 @@ class TelaSistema:
         if not self.treinos:
             self.exibirMensagemSemTreinos()
         else:
-            self.exibirTreino(0) # Exibe o primeiro treino
+            self.exibirTreino(0)
         
         print("DEBUG [TelaSistema.exibir_tela_principal]: UI configurada. Mainloop será iniciado externamente.")
-        # NENHUM mainloop() AQUI!
+
 
     def exibirTreino(self, indice: int):
         """Atualiza a UI para mostrar o treino no índice especificado."""
         if not self.treinos or not (0 <= indice < len(self.treinos)):
-            self.exibirMensagemSemTreinos() # Fallback se o índice for inválido ou não houver treinos
+            self.exibirMensagemSemTreinos()
             return
 
         self.indice_treino_atual = indice
@@ -162,7 +162,7 @@ class TelaSistema:
             sucesso_curtida = self.controlador_treino_ref.curtir_treino(treino_atual.id)
             if sucesso_curtida:
                 treino_atual.curtidas += 1 
-                self.exibirTreino(self.indice_treino_atual) # Reexibe o treino atual com curtida atualizada
+                self.exibirTreino(self.indice_treino_atual)
             else:
                 messagebox.showerror("Erro", "Não foi possível registrar a curtida.", parent=self.root_sistema)
         else:

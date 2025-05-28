@@ -7,12 +7,10 @@ class ControladorSistema:
     def __init__(self):
         self.tela_sistema = TelaSistema(self) 
         self.controlador_usuario = ControladorUsuario(self)
-        # Mantendo a instanciação conforme seu pedido.
-        # O __init__ do ControladorTreino deve ser def __init__(self, controlador_sistema):
         self.controlador_treino = ControladorTreino(self) 
 
     def buscar_usuario_logado(self):
-        return self.controlador_usuario.usuario_logado # Adicionado return
+        return self.controlador_usuario.usuario_logado
 
     def iniciar(self):
         print("DEBUG [ControladorSistema.iniciar]: Iniciando fluxo de login.")
@@ -27,12 +25,10 @@ class ControladorSistema:
             
             lista_de_treinos_para_o_feed = self.controlador_treino.buscar_treinos_amizades(usuario_atual)
 
-            # O método em TelaSistema que monta a UI e recebe os dados
-            # é chamado de exibir_tela_principal no seu diagrama (Controlador -> Tela)
             print("DEBUG [ControladorSistema.inicializarFeed]: Configurando UI da TelaSistema via exibir_tela_principal...")
             self.tela_sistema.exibir_tela_principal(
                 usuario_logado=usuario_atual,
-                lista_de_treinos=lista_de_treinos_para_o_feed, # Passa a lista de treinos
+                lista_de_treinos=lista_de_treinos_para_o_feed,
                 controlador_treino_ref=self.controlador_treino,
                 callback_logout=self.efetuar_logout,
                 callback_abrir_perfil=self.navegar_para_perfil,
@@ -42,7 +38,7 @@ class ControladorSistema:
             
             print("DEBUG [ControladorSistema.inicializarFeed]: Iniciando loop de eventos da TelaSistema...")
             if self.tela_sistema.root_sistema and self.tela_sistema.root_sistema.winfo_exists():
-                self.tela_sistema.iniciar_loop_eventos() # BLOQUEANTE até TelaSistema fechar
+                self.tela_sistema.iniciar_loop_eventos()
                 print("DEBUG [ControladorSistema.inicializarFeed]: TelaSistema foi fechada.")
             else:
                 print("ERROR [ControladorSistema.inicializarFeed]: Não foi possível iniciar a TelaSistema.")
@@ -52,7 +48,7 @@ class ControladorSistema:
             self.iniciar()
 
     def efetuar_logout(self):
-        # ... (como antes) ...
+
         print("DEBUG [ControladorSistema.efetuar_logout]: Processando logout...")
         if self.tela_sistema: self.tela_sistema.fechar_tela()
         if self.controlador_usuario: self.controlador_usuario._usuario_logado = None 
@@ -60,7 +56,7 @@ class ControladorSistema:
         self.controlador_usuario.abrir_tela_login()
 
     def navegar_para_perfil(self):
-        # ... (como antes, mas chamando inicializarFeed ou iniciar após) ...
+
         print("DEBUG [ControladorSistema]: Navegando para Tela de Perfil.")
         if self.tela_sistema: self.tela_sistema.fechar_tela() 
         messagebox.showinfo("Navegação", "Tela de Perfil ainda não implementada.")
@@ -68,7 +64,7 @@ class ControladorSistema:
         else: self.iniciar()
 
     def navegar_para_busca(self):
-        # ... (como antes) ...
+
         print("DEBUG [ControladorSistema]: Navegando para Tela de Busca.")
         if self.tela_sistema: self.tela_sistema.fechar_tela()
         messagebox.showinfo("Navegação", "Tela de Busca ainda não implementada.")

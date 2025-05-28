@@ -1,4 +1,3 @@
-# repositories/repositorio_treino.py
 
 from repositories.repositorio_base import RepositorioBase
 from models.treino import Treino
@@ -23,7 +22,7 @@ class RepositorioTreino(RepositorioBase):
                 statement = query,
                 parameters = {
                     "descricao": treino.descricao,
-                    "foto": treino.imagem,                          # no model é 'imagem'
+                    "foto": treino.imagem, 
                     "usuario": treino.usuario.id if treino.usuario else None,
                     "curtidas": treino.curtidas,
                     "data": treino.data.isoformat() if treino.data else None
@@ -32,16 +31,9 @@ class RepositorioTreino(RepositorioBase):
 
 
     def buscar_por_usuario_id(self, usuario_id_autor: int) -> list[Treino]:
-        """
-        Busca todos os treinos registrados por um usuário específico (autor do treino).
-        Retorna uma lista de objetos Treino.
-        """
+
         treinos_encontrados = []
-        # Query para buscar treinos e dados do usuário autor.
-        # Ajuste os nomes das tabelas/colunas conforme seu banco.
-        # Assumindo que 'treinos.usuario' armazena o ID do autor.
-        # Assumindo que 'treinos.foto' armazena o caminho da imagem.
-        # Assumindo que 'treinos' possui uma coluna 'duracao'.
+
         query = text("""
             SELECT 
                 t.id as treino_id, t.descricao, t.duracao, t.foto as treino_imagem, 
@@ -56,7 +48,7 @@ class RepositorioTreino(RepositorioBase):
             ORDER BY t.data DESC 
         """)
         
-        # Exemplo de execução da query (adapte ao seu gerenciamento de conexão)
+
         try:
             with self._conn.begin(): # Obter uma conexão do engine se self._conn é o engine
                 resultados = self._conn.execute(query, {"id_autor": usuario_id_autor}).mappings().all()
@@ -86,13 +78,13 @@ class RepositorioTreino(RepositorioBase):
                 email=linha['autor_email'],
                 foto=linha['autor_foto'],
                 data_nascimento=data_nasc_autor_db,
-                senha_criptografada=linha['autor_senha_criptografada'] # Geralmente não é exposta
+                senha_criptografada=linha['autor_senha_criptografada']
             )
             treino = Treino(
                 id_treino=linha['treino_id'],
                 descricao=linha['descricao'],
                 duracao=linha['duracao'],
-                imagem=linha['treino_imagem'], # Mapeia 'treinos.foto' para 'Treino.imagem'
+                imagem=linha['treino_imagem'],
                 usuario=autor_do_treino,
                 data_treino=data_treino_db,
                 curtidas=linha['treino_curtidas']
@@ -105,21 +97,11 @@ class RepositorioTreino(RepositorioBase):
 
     def buscar_treinos_amizades(self, ids_dos_amigos: List[int]) -> List[Treino]:
 
-        """
-        Busca todos os treinos pertencentes a uma lista de IDs de usuários (amigos).
-        Os treinos são ordenados por data (mais recentes primeiro).
-        """
+
         if not ids_dos_amigos:
             return []
 
         treinos_encontrados = []
-        # A cláusula IN é usada para buscar treinos de múltiplos IDs.
-        # O formato para `IN` com SQLAlchemy `text()` pode precisar de expansão de bind parameters.
-        # Exemplo de construção de query para múltiplos IDs:
-        # params = {f"id_amigo_{i}": amigo_id for i, amigo_id in enumerate(ids_dos_amigos)}
-        # in_clause = ", ".join([f":id_amigo_{i}" for i in range(len(ids_dos_amigos))])
-        # query_str = f""" ... WHERE t.usuario IN ({in_clause}) ... """
-        # No entanto, com `execute`, passar uma lista/tupla para um parâmetro usado com `IN` é geralmente suportado.
 
         query = text(f"""
             SELECT 
@@ -144,7 +126,7 @@ class RepositorioTreino(RepositorioBase):
 
         for linha in resultados:
             data_treino_db = linha['treino_data']; data_nasc_autor_db = linha['autor_data_nascimento']
-            # Validação e conversão de datas
+
             if isinstance(data_treino_db, str): data_treino_db = date.fromisoformat(data_treino_db) if data_treino_db else None
             if isinstance(data_nasc_autor_db, str): data_nasc_autor_db = date.fromisoformat(data_nasc_autor_db) if data_nasc_autor_db else None
 
@@ -158,8 +140,8 @@ class RepositorioTreino(RepositorioBase):
         
         return treinos_encontrados
     
-    def salvar_curtida(self, treino_id: int) -> bool: # Seu método existente
-        # ... (implementação para salvar curtida) ...
+    def salvar_curtida(self, treino_id: int) -> bool:
+
         query = text("""
             UPDATE treinos SET curtidas = curtidas + 1
             WHERE id = :treino_id
