@@ -17,19 +17,17 @@ class RepositorioTreino(RepositorioBase):
         INSERT INTO treinos (descricao, foto, usuario, curtidas, "data")
         VALUES (:descricao, :foto, :usuario, :curtidas, :data)
         """)
-        with self._conn.begin():
+        with self._conn.begin() as transaction:
             self._conn.execute(
-                self._conn.commit(
-                    statement = query,
-                    parameters = {
-                        "descricao": treino.descricao,
-                        "imagem": treino.imagem, 
-                        "duracao": treino.duracao,
-                        "usuario": treino.usuario.id,
-                        "curtidas": treino.curtidas,
-                        "data": treino.data.isoformat() if treino.data else None
+                statement = query,
+                parameters = {
+                    "descricao": treino.descricao,
+                    "imagem": treino.imagem, 
+                    "duracao": treino.duracao,
+                    "usuario": treino.usuario.id,
+                    "curtidas": treino.curtidas,
+                    "data": treino.data.isoformat() if treino.data else None
                     }
-                )
             )
 
 
