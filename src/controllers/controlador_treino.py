@@ -7,7 +7,7 @@ from typing import List
 
 class ControladorTreino:
     def __init__(self, controlador_sistema):
-        self.ctrl_sistema = controlador_sistema
+        self._controlador_sistema = controlador_sistema
         self.repositorio = RepositorioTreino()
         self.tela_treino = TelaTreino()
 
@@ -17,7 +17,7 @@ class ControladorTreino:
         )
     
     def pega_usuario_logado(self):
-        self.ctrl_sistema.buscar_usuario_logado()
+        self._controlador_sistema.buscar_usuario_logado()
 
     def registrar_treino(self, descricao: str, duracao_str: str, imagem_path: str) -> None:
         if not imagem_path:

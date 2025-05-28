@@ -3,9 +3,6 @@ from repositories.repositorio_usuario import RepositorioUsuario
 from views.tela_usuario import TelaUsuario
 from datetime import date
 from utils.encryption import cipher
-from typing import List
-from models.treino import Treino
-
 
 class ControladorUsuario:
     def __init__(self, controlador_sistema):
