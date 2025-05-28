@@ -96,10 +96,21 @@ class TelaRanking:
         self._periodo = periodo
 
     def exibirRanking(self, listagem):
-        if self._ranking_table and self._ranking_table.winfo_exists():
-            self._ranking_table.destroy()
-        if self._ranking_subtitulo and self._ranking_subtitulo.winfo_exists():
-            self._ranking_subtitulo.destroy()
+        if self._ranking_table is not None:
+            try:
+                if self._ranking_table.winfo_exists():
+                    self._ranking_table.destroy()
+            except tk.TclError:
+                pass
+            self._ranking_table = None
+
+        if self._ranking_subtitulo is not None:
+            try:
+                if self._ranking_subtitulo.winfo_exists():
+                    self._ranking_subtitulo.destroy()
+            except tk.TclError:
+                pass
+            self._ranking_subtitulo = None
 
         self._ranking_subtitulo = ttk.Label(
             self.main_frame,
