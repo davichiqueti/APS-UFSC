@@ -23,7 +23,6 @@ class TelaSistema:
     def __init__(self):
         self.treinos: List[Treino] = mock_treinos_obj # Usando a lista de objetos Treino
         self.indice_treino_atual = 0
-        self.root_sistema = None
 
     def exibir_tela_principal(self, usuario_logado: Usuario, callback_logout: Callable,
                                callback_abrir_perfil: Callable,
@@ -32,11 +31,11 @@ class TelaSistema:
         
         
 
-        self.root_sistema = tk.Tk()
-        self.root_sistema.title(f"Feed - Bem-vindo(a), {usuario_logado.nome}!")
-        self.root_sistema.geometry("800x650")
+        root = tk.Tk()
+        root.title(f"Feed - Bem-vindo(a), {usuario_logado.nome}!")
+        root.geometry("800x650")
 
-        frame_navegacao = tk.Frame(self.root_sistema, bd=1, relief=tk.RAISED)
+        frame_navegacao = tk.Frame(root, bd=1, relief=tk.RAISED)
         frame_navegacao.pack(side=tk.TOP, fill=tk.X, pady=(0, 5))
         tk.Label(frame_navegacao, text=f"Usuário: {usuario_logado.nome}", padx=10, font=("Arial", 10)).pack(side=tk.LEFT)
         tk.Button(frame_navegacao, text="Meu Perfil", command=callback_abrir_perfil).pack(side=tk.LEFT, padx=5, pady=5)
@@ -44,7 +43,7 @@ class TelaSistema:
         tk.Button(frame_navegacao, text="Registrar Treino", command=callback_registrar_treino).pack(side=tk.LEFT, padx=5, pady=5)
 
 
-        frame_feed_area = tk.Frame(self.root_sistema, padx=10, pady=10)
+        frame_feed_area = tk.Frame(root, padx=10, pady=10)
         frame_feed_area.pack(expand=True, fill=tk.BOTH)
         tk.Label(frame_feed_area, text="FEED DE TREINOS", font=("Arial", 18, "bold")).pack(pady=(5,15))
 
@@ -66,7 +65,7 @@ class TelaSistema:
         tk.Button(frame_interacao_feed, text="Próximo Treino >>", command=self.acao_treino_proximo).pack(side=tk.LEFT, padx=20)
 
         self._atualizar_exibicao_treino()
-        self.root_sistema.mainloop()
+        root.mainloop()
 
     def _atualizar_exibicao_treino(self):
         if not self.treinos:
@@ -110,7 +109,7 @@ class TelaSistema:
             self.indice_treino_atual -= 1
             self._atualizar_exibicao_treino()
         else:
-            messagebox.showinfo("Feed", "Você já está no primeiro treino.", parent=self.root_sistema)
+            messagebox.showinfo("Feed", "Você já está no primeiro treino.", parent=root)
 
 
     def acao_treino_proximo(self):
@@ -120,12 +119,12 @@ class TelaSistema:
             self.indice_treino_atual += 1
             self._atualizar_exibicao_treino()
         else:
-            messagebox.showinfo("Feed", "Você já está no último treino.", parent=self.root_sistema)
+            messagebox.showinfo("Feed", "Você já está no último treino.", parent=root)
 
 
     def acao_curtir_treino(self):
         if not self.treinos or not (0 <= self.indice_treino_atual < len(self.treinos)):
-             messagebox.showerror("Erro", "Nenhum treino selecionado para curtir.", parent=self.root_sistema)
+             messagebox.showerror("Erro", "Nenhum treino selecionado para curtir.", parent=root)
              return
 
         treino_atual: Treino = self.treinos[self.indice_treino_atual]
@@ -141,6 +140,6 @@ class TelaSistema:
         self._atualizar_exibicao_treino()
 
     def fechar_tela(self):
-        if self.root_sistema and self.root_sistema.winfo_exists():
-            self.root_sistema.destroy()
-            self.root_sistema = None
+        if root and root.winfo_exists():
+            root.destroy()
+            root = None

@@ -53,7 +53,39 @@ class ControladorTreino:
         return self.repositorio.buscar_por_usuario_id(usuario.id)
     
 
-    def buscar_treinos_amizades(self, usuario: Usuario):
 
-        self.repositorio.
-        return List[Treino]
+
+    def buscar_treinos_amizades(self, usuario_logado: Usuario) -> List[Treino]:
+        """
+        Busca os treinos de todos os amigos do usuario_logado, chamando o repositório.
+        A ordenação já é feita pelo repositório.
+        """
+        if not usuario_logado or not hasattr(usuario_logado, 'amizades') or not usuario_logado.amizades:
+            print("DEBUG [ControladorTreino.buscar_treinos_amizades]: Usuário não logado ou sem amigos para buscar treinos.")
+            return []
+
+        ids_dos_amigos = [amigo.id for amigo in usuario_logado.amizades if amigo and hasattr(amigo, 'id') and amigo.id is not None]
+
+        if not ids_dos_amigos:
+            print("DEBUG [ControladorTreino.buscar_treinos_amizades]: Nenhum ID de amigo válido encontrado.")
+            return []
+            
+        print(f"DEBUG [ControladorTreino.buscar_treinos_amizades]: Buscando treinos para IDs de amigos: {ids_dos_amigos}")
+        
+        # Chama o novo método do repositório que busca por uma lista de IDs
+        treinos_dos_amigos = self.repositorio.buscar_treinos_amizades(ids_dos_amigos)
+        
+        # A ordenação já deve vir do repositório (ORDER BY t.data DESC)
+        # Se precisar reordenar ou fazer lógica adicional, pode ser feito aqui.
+        # Ex: treinos_dos_amigos.sort(key=lambda treino: treino.data if treino.data else date.min, reverse=True)
+        
+        if treinos_dos_amigos:
+            print(f"DEBUG [ControladorTreino.buscar_treinos_amizades]: {len(treinos_dos_amigos)} treinos de amigos retornados pelo repositório.")
+        else:
+            print("DEBUG [ControladorTreino.buscar_treinos_amizades]: Nenhum treino de amigo retornado pelo repositório.")
+            
+        return treinos_dos_amigos
+
+    def curtir_treino(self, treino_id: int) -> bool: # Seu método existente
+        if treino_id is None: return False
+        return self.repositorio.salvar_curtida(treino_id)
