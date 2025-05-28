@@ -194,33 +194,44 @@ class TelaSistema:
         self.exibirTreino(novo_indice)
         
     def acao_curtir_treino(self):
-        if not self.root_sistema: return
+        if not self.root_sistema or not self.root_sistema.winfo_exists(): return # Verifica se a janela existe
         if not self.treinos or not (0 <= self.indice_treino_atual < len(self.treinos)):
+            # Isso não deveria acontecer se os botões estiverem desabilitados corretamente
+            print("WARN [TelaSistema.acao_curtir_treino]: Sem treinos ou índice inválido.")
             return 
 
         treino_atual: Treino = self.treinos[self.indice_treino_atual]
         
+        if not hasattr(treino_atual, 'id_treino') or treino_atual.id_treino is None:
+            messagebox.showerror("Erro", "Informação do treino inválida para curtir.", parent=self.root_sistema)
+            return
+
         if self.controlador_treino_ref and hasattr(self.controlador_treino_ref, 'curtir_treino'):
-            # TENTA ACESSAR O ATRIBUTO CORRETO DO ID DO TREINO
-            # Se o atributo no objeto Treino for 'id_treino':
-            id_do_treino_para_curtir = treino_atual.id_treino 
-            # Se o atributo no objeto Treino for 'id' (e o erro foi um engano):
-            # id_do_treino_para_curtir = treino_atual.id
-
-            print(f"DEBUG [TelaSistema.acao_curtir_treino]: Tentando curtir treino com ID: {id_do_treino_para_curtir}")
+            print(f"DEBUG [TelaSistema.acao_curtir_treino]: Usuário '{self.usuario_logado_atual.nome if self.usuario_logado_atual else 'N/A'}' clicou em curtir para treino ID {treino_atual.id_treino}")
             
-            if id_do_treino_para_curtir is None:
-                messagebox.showerror("Erro", "ID do treino inválido para curtir.", parent=self.root_sistema)
-                return
-
-            sucesso_curtida = self.controlador_treino_ref.curtir_treino(id_do_treino_para_curtir)
-            if sucesso_curtida:
+            # O ControladorTreino.curtir_treino agora retorna True se foi uma *nova* curtida
+            # que resultou no incremento do contador principal no backend.
+            foi_nova_curtida_no_backend = self.controlador_treino_ref.curtir_treino(treino_atual.id_treino)
+            
+            if foi_nova_curtida_no_backend:
+                # Se o backend confirmou que é uma nova curtida e o contador principal foi incrementado,
+                # então atualizamos o contador local na UI para feedback visual imediato.
                 treino_atual.curtidas += 1 
-                self.exibirTreino(self.indice_treino_atual) # Reexibe para atualizar a contagem de curtidas
+                self.exibirTreino(self.indice_treino_atual) # Reexibe para atualizar a contagem na UI
+                print(f"DEBUG [TelaSistema.acao_curtir_treino]: UI atualizada para nova curtida no treino ID {treino_atual.id_treino}.")
             else:
-                messagebox.showerror("Erro", "Não foi possível registrar a curtida.", parent=self.root_sistema)
+                # Se False, pode ser que o usuário já curtiu ou ocorreu um erro no backend.
+                # O backend (repositório/controlador) já imprimiu logs mais detalhados.
+                # Para a UI, podemos apenas não fazer nada ou dar uma mensagem sutil de "Já curtido".
+                # Não incrementamos o contador local aqui.
+                print(f"INFO [TelaSistema.acao_curtir_treino]: Ação de curtir para treino ID {treino_atual.id_treino} não resultou em novo incremento na UI (já curtido ou erro no backend).")
+                # Opcional: se quiser dar um feedback de "já curtiu"
+                # messagebox.showinfo("Curtir", "Você já curtiu este treino!", parent=self.root_sistema)
+                # Mas geralmente, se o botão de curtir tivesse um estado visual (ex: preenchido vs. vazio),
+                # ele já indicaria o estado "curtido".
         else:
-            print("ERRO [TelaSistema.acao_curtir_treino]: Referência ao ControladorTreino não configurada.")
+            print("ERRO [TelaSistema.acao_curtir_treino]: Referência ao ControladorTreino não configurada ou método 'curtir_treino' ausente.")
+            messagebox.showerror("Erro Interno", "Não foi possível processar a ação de curtir.", parent=self.root_sistema)
 
     def fechar_tela(self):
         if self.root_sistema and self.root_sistema.winfo_exists():

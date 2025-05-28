@@ -146,16 +146,40 @@ class RepositorioTreino(RepositorioBase):
         
         return treinos_encontrados
     
-    def salvar_curtida(self, treino_id: int) -> bool:
-        # CORREÇÃO: Usar id_treino na cláusula WHERE
-        query = text("""
-            UPDATE treinos SET curtidas = curtidas + 1
-            WHERE id_treino = :id_treino_param -- Usar id_treino e um nome de parâmetro diferente
+    def salvar_curtida(self, treino_id: int, usuario_id: int) -> bool:
+
+        query_inserir_curtida_individual = text("""
+            INSERT INTO treino_curtidas (usuario_id, treino_id, data_curtida)
+            VALUES (:user_id, :train_id, CURRENT_TIMESTAMP)
+            ON CONFLICT (usuario_id, treino_id) DO NOTHING; 
         """)
+        # ON CONFLICT DO NOTHING é específico do PostgreSQL. Adapte se usar outro banco.
+
+        query_incrementar_contador_geral = text("""
+            UPDATE treinos SET curtidas = curtidas + 1
+            WHERE id_treino = :train_id 
+        """) # Usa id_treino conforme sua tabela treinos
+        
         try:
-            with self._conn.begin():
-                result = self._conn.execute(query, {"id_treino_param": treino_id})
-                return result.rowcount > 0 # True se uma linha foi afetada
+            with self._conn.begin() as transaction: # Garante atomicidade
+                result_insert_individual = self._conn.execute(
+                    query_inserir_curtida_individual, 
+                    {"user_id": usuario_id, "train_id": treino_id}
+                )
+                
+                # result_insert_individual.rowcount será 1 se uma nova linha foi inserida,
+                # e 0 se ON CONFLICT DO NOTHING foi acionado (curtida já existia).
+                if result_insert_individual.rowcount > 0:
+                    # Nova curtida, então incrementa o contador geral
+                    self._conn.execute(query_incrementar_contador_geral, {"train_id": treino_id})
+                    print(f"DEBUG [RepositorioTreino.salvar_curtida]: Novo like de usuario {usuario_id} para treino {treino_id} inserido e contador incrementado.")
+                    return True # Sucesso, nova curtida
+                else:
+                    # O usuário já havia curtido este treino.
+                    print(f"INFO [RepositorioTreino.salvar_curtida]: Usuário {usuario_id} já havia curtido o treino {treino_id}. Contador não alterado.")
+                    return False # Não foi uma "nova" curtida para o contador geral
+            # 'with self._conn.begin()' faz commit ou rollback automaticamente.
+                
         except Exception as e:
-            print(f"ERRO ao salvar curtida no RepositorioTreino: {e}")
-            return False
+            print(f"ERRO GERAL ao salvar curtida no RepositorioTreino para treino {treino_id} por usuario {usuario_id}: {e}")
+            return False # Erro na operação
