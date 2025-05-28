@@ -88,7 +88,7 @@ class ControladorUsuario:
             raise ValueError("Erro ao verificar a senha. Contate o suporte.")
 
         self._usuario_logado = usuario_encontrado
-        print(usuario_encontrado)
+        print(usuario_encontrado.amizades)
 
 
     def chama_sistema(self):
