@@ -9,7 +9,6 @@ class ControladorRanking:
         self.controlador_sistema = controlador_sistema
         self.tela_ranking = TelaRanking(self)
 
-
     def __pegarDataInicialPeriodo(self, periodo: int) -> date:
         """
         Retorna a data inicial para cada tipo de periodo.
