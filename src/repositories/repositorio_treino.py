@@ -3,8 +3,8 @@ from repositories.repositorio_base import RepositorioBase
 from models.treino import Treino
 from sqlalchemy.sql import text
 import sqlalchemy
-from datetime import date
-from typing import List
+from datetime import date, timedelta 
+from typing import List, Optional
 
 from models.usuario import Usuario
 
@@ -153,3 +153,49 @@ class RepositorioTreino(RepositorioBase):
         except Exception as e:
             print(f"ERRO ao salvar curtida no RepositorioTreino: {e}")
             return False
+        
+
+    def buscar_treinos_amizades_mock(self, ids_dos_amigos_param: Optional[List[int]] = None) -> List[Treino]:
+        """
+        Retorna uma lista FIXA de treinos mock para fins de teste da UI do feed.
+        Opcionalmente, pode filtrar se ids_dos_amigos_param for fornecido.
+        """
+        print("INFO [RepositorioTreino]: Usando buscar_treinos_amizades_MOCK")
+        
+        # Define alguns usuários mock aqui mesmo para este método
+        # (Você pode ajustar os IDs para corresponder aos IDs dos amigos do seu usuário de teste)
+        mock_amigo_1 = Usuario(id=101, cpf="101mock", nome="Amigo Mock A", email="a@mock.com", foto="", data_nascimento=date(1990,1,1), senha_criptografada="mock")
+        mock_amigo_2 = Usuario(id=102, cpf="102mock", nome="Amiga Mock B", email="b@mock.com", foto="", data_nascimento=date(1991,1,1), senha_criptografada="mock")
+        mock_outro_usuario = Usuario(id=201, cpf="201mock", nome="Outro Usuário Mock C", email="c@mock.com", foto="", data_nascimento=date(1992,1,1), senha_criptografada="mock")
+
+        hoje = date.today()
+        lista_interna_mock_treinos = [
+            Treino(id_treino=2001, descricao="Treino Mock 1 (Amigo A)", duracao=60, usuario=mock_amigo_1, data_treino=hoje - timedelta(days=1), curtidas=10, imagem="img1.png"),
+            Treino(id_treino=2002, descricao="Treino Mock 2 (Amiga B)", duracao=45, usuario=mock_amigo_2, data_treino=hoje - timedelta(days=2), curtidas=25, imagem="img2.png"),
+            Treino(id_treino=2003, descricao="Treino Mock 3 (Amigo A)", duracao=30, usuario=mock_amigo_1, data_treino=hoje - timedelta(days=3), curtidas=5, imagem="img3.png"),
+            Treino(id_treino=2004, descricao="Treino Mock 4 (Outro Usuário C)", duracao=75, usuario=mock_outro_usuario, data_treino=hoje - timedelta(days=1), curtidas=12, imagem="img4.png"),
+            Treino(id_treino=2005, descricao="Treino Mock 5 (Amiga B) - MAIS RECENTE", duracao=50, usuario=mock_amigo_2, data_treino=hoje, curtidas=30, imagem="img5.png"),
+        ]
+
+        # Se ids_dos_amigos_param for fornecido, filtra por eles.
+        # Caso contrário, para este mock simples, podemos retornar treinos dos amigos 101 e 102.
+        if ids_dos_amigos_param is not None:
+            treinos_filtrados = [
+                t for t in lista_interna_mock_treinos
+                if t.usuario and hasattr(t.usuario, 'id') and t.usuario.id in ids_dos_amigos_param
+            ]
+        else:
+            # Para um teste rápido sem depender dos IDs exatos dos amigos do usuário logado,
+            # você pode retornar uma lista pré-definida de "treinos de amigos mock".
+            # Por exemplo, apenas os treinos de mock_amigo_1 e mock_amigo_2.
+            ids_amigos_default_mock = [101, 102]
+            treinos_filtrados = [
+                t for t in lista_interna_mock_treinos
+                if t.usuario and hasattr(t.usuario, 'id') and t.usuario.id in ids_amigos_default_mock
+            ]
+
+        # Ordena pela data do treino, do mais recente para o mais antigo
+        treinos_filtrados.sort(key=lambda treino: treino.data if treino.data else date.min, reverse=True)
+        
+        print(f"MOCK [RepositorioTreino.buscar_treinos_amizades_mock]: Retornando {len(treinos_filtrados)} treinos mock.")
+        return treinos_filtrados

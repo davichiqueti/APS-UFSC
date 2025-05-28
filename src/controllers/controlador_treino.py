@@ -55,6 +55,7 @@ class ControladorTreino:
 
     def buscar_treinos_amizades(self, usuario_logado: Usuario) -> List[Treino]:
 
+
         if not usuario_logado or not hasattr(usuario_logado, 'amizades') or not usuario_logado.amizades:
             print("DEBUG [ControladorTreino.buscar_treinos_amizades]: Usuário não logado ou sem amigos para buscar treinos.")
             return []
@@ -66,9 +67,11 @@ class ControladorTreino:
             return []
             
         print(f"DEBUG [ControladorTreino.buscar_treinos_amizades]: Buscando treinos para IDs de amigos: {ids_dos_amigos}")
-        
 
+
+        
         treinos_dos_amigos = self.repositorio.buscar_treinos_amizades(ids_dos_amigos)
+       # treinos_dos_amigos = self.repositorio.buscar_treinos_amizades_mock()
         
         if treinos_dos_amigos:
             print(f"DEBUG [ControladorTreino.buscar_treinos_amizades]: {len(treinos_dos_amigos)} treinos de amigos retornados pelo repositório.")

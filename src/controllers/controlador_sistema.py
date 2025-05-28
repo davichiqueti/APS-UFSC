@@ -18,7 +18,7 @@ class ControladorSistema:
         print("DEBUG [ControladorSistema.iniciar]: Fluxo principal (login/sistema) aparentemente concluído.")
 
     def inicializarFeed(self):
-        usuario_atual = self.buscar_usuario_logado()
+        usuario_atual = self.controlador_usuario.usuario_logado
         if usuario_atual:
             print(f"\nDEBUG [ControladorSistema.inicializarFeed]: Usuário {usuario_atual.nome} logado.")
             print("DEBUG [ControladorSistema.inicializarFeed]: Solicitando treinos das amizades ao ControladorTreino...")
