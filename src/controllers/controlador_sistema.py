@@ -2,6 +2,8 @@ from tkinter import messagebox
 from views.tela_sistema import TelaSistema
 from controllers.controlador_usuario import ControladorUsuario
 from controllers.controlador_treino import ControladorTreino
+from controllers.controlador_ranking import ControladorRanking
+
 
 class ControladorSistema:
     def __init__(self):
@@ -10,6 +12,7 @@ class ControladorSistema:
         # Mantendo a instanciação conforme seu pedido.
         # O __init__ do ControladorTreino deve ser def __init__(self, controlador_sistema):
         self.controlador_treino = ControladorTreino(self) 
+        self.controlador_ranking = ControladorRanking(self)
 
     def buscar_usuario_logado(self):
         return self.controlador_usuario.usuario_logado # Adicionado return
@@ -37,7 +40,8 @@ class ControladorSistema:
                 callback_logout=self.efetuar_logout,
                 callback_abrir_perfil=self.navegar_para_perfil,
                 callback_abrir_busca=self.navegar_para_busca,
-                callback_registrar_treino=self.navegar_para_registrar_treino
+                callback_registrar_treino=self.navegar_para_registrar_treino,
+                callback_rankings=self.navegar_para_rankings
             )
             
             print("DEBUG [ControladorSistema.inicializarFeed]: Iniciando loop de eventos da TelaSistema...")
@@ -83,3 +87,13 @@ class ControladorSistema:
         print("DEBUG [ControladorSistema]: Retornou de abrir_tela_registro.")
         if self.controlador_usuario.usuario_logado: self.inicializarFeed()
         else: self.iniciar()
+
+    def navegar_para_rankings(self):
+        print("DEBUG [ControladorSistema]: Navegando para Tela de Rankings.")
+        self.tela_sistema.fechar_tela()
+        self.controlador_ranking.tela_ranking.exibir()
+        print("DEBUG [ControladorSistema]: Retornou de da tela de rankings.")
+        if self.controlador_usuario.usuario_logado:
+            self.inicializarFeed()
+        else:
+            self.iniciar()
