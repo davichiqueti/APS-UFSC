@@ -51,19 +51,19 @@ class RepositorioTreino(RepositorioBase):
         
 
         try:
-            with self._conn.begin(): # Obter uma conexão do engine se self._conn é o engine
+            with self._conn.begin(): 
                 resultados = self._conn.execute(query, {"id_autor": usuario_id_autor}).mappings().all()
         except Exception as e:
             print(f"ERRO ao buscar treinos no repositório: {e}")
-            return [] # Retorna lista vazia em caso de erro
+            return [] 
 
         for linha in resultados:
             data_treino_db = linha['treino_data']
-            if isinstance(data_treino_db, str): # Converter string para date se necessário
+            if isinstance(data_treino_db, str):
                 try:
                     data_treino_db = date.fromisoformat(data_treino_db)
                 except ValueError:
-                    data_treino_db = None # Ou trate o erro como preferir
+                    data_treino_db = None 
             
             data_nasc_autor_db = linha['autor_data_nascimento']
             if isinstance(data_nasc_autor_db, str):
@@ -95,16 +95,13 @@ class RepositorioTreino(RepositorioBase):
         return treinos_encontrados
     
 
-    def buscar_treinos_amizades(self, ids_dos_amigos: List[int]) -> List[Treino]: # Nome conforme seu código
-        """
-        Busca todos os treinos pertencentes a uma lista de IDs de usuários (amigos).
-        Os treinos são ordenados por data (mais recentes primeiro).
-        """
+    def buscar_treinos_amizades(self, ids_dos_amigos: List[int]) -> List[Treino]: 
+
         if not ids_dos_amigos:
             return []
 
         treinos_encontrados = []
-        # CORREÇÃO: Selecionar t.imagem como treino_imagem
+
         query = text(f"""
             SELECT 
                 t.id_treino as treino_id, t.descricao, t.duracao, t.imagem as treino_imagem, 
@@ -120,8 +117,7 @@ class RepositorioTreino(RepositorioBase):
         """)
         
         try:
-            # Assumindo que self._conn é uma conexão e você gerencia transações com begin()
-            # Se self._conn for um engine, seria: with self._conn.connect() as connection:
+
             with self._conn.begin(): 
                 resultados = self._conn.execute(query, {"lista_ids_amigos": tuple(ids_dos_amigos)}).mappings().all()
         except Exception as e:
@@ -153,33 +149,28 @@ class RepositorioTreino(RepositorioBase):
             VALUES (:user_id, :train_id, CURRENT_TIMESTAMP)
             ON CONFLICT (usuario_id, treino_id) DO NOTHING; 
         """)
-        # ON CONFLICT DO NOTHING é específico do PostgreSQL. Adapte se usar outro banco.
 
         query_incrementar_contador_geral = text("""
             UPDATE treinos SET curtidas = curtidas + 1
             WHERE id_treino = :train_id 
-        """) # Usa id_treino conforme sua tabela treinos
+        """) 
         
         try:
-            with self._conn.begin() as transaction: # Garante atomicidade
+            with self._conn.begin() as transaction:
                 result_insert_individual = self._conn.execute(
                     query_inserir_curtida_individual, 
                     {"user_id": usuario_id, "train_id": treino_id}
                 )
                 
-                # result_insert_individual.rowcount será 1 se uma nova linha foi inserida,
-                # e 0 se ON CONFLICT DO NOTHING foi acionado (curtida já existia).
+
                 if result_insert_individual.rowcount > 0:
-                    # Nova curtida, então incrementa o contador geral
                     self._conn.execute(query_incrementar_contador_geral, {"train_id": treino_id})
                     print(f"DEBUG [RepositorioTreino.salvar_curtida]: Novo like de usuario {usuario_id} para treino {treino_id} inserido e contador incrementado.")
-                    return True # Sucesso, nova curtida
+                    return True 
                 else:
-                    # O usuário já havia curtido este treino.
                     print(f"INFO [RepositorioTreino.salvar_curtida]: Usuário {usuario_id} já havia curtido o treino {treino_id}. Contador não alterado.")
-                    return False # Não foi uma "nova" curtida para o contador geral
-            # 'with self._conn.begin()' faz commit ou rollback automaticamente.
+                    return False 
                 
         except Exception as e:
             print(f"ERRO GERAL ao salvar curtida no RepositorioTreino para treino {treino_id} por usuario {usuario_id}: {e}")
-            return False # Erro na operação
+            return False 

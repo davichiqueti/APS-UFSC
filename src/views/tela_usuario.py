@@ -61,7 +61,7 @@ class TelaUsuario():
         def cadastrar_usuario():
             if senha_entry.get() != confirmar_senha_entry.get():
                 messagebox.showerror("Erro", "As senhas não coincidem!")
-                return  # Apenas retorna, sem recriar a tela
+                return  
             try:
                 data_nascimento = datetime.strptime(data_nascimento_entry.get(), "%d/%m/%Y").date()
                 callback_cadastro(
@@ -83,10 +83,10 @@ class TelaUsuario():
         ).pack(pady=10)
 
         def acao_ir_para_login():
-            root.destroy()  # Fecha a janela de cadastro # Changed from root_login
-            callback_abrir_login() # Chama o callback para abrir a tela de login
+            root.destroy()  
+            callback_abrir_login() 
 
-        tk.Button(root, text="Já tem uma conta? Entre aqui!", command=acao_ir_para_login).pack(pady=10)  # Changed from root_login
+        tk.Button(root, text="Já tem uma conta? Entre aqui!", command=acao_ir_para_login).pack(pady=10) 
 
 
 

@@ -23,7 +23,7 @@ class RepositorioUsuario(RepositorioBase):
                     "nome": user.nome,
                     "email": user.email,
                     "foto": user.foto,
-                    "data_nascimento": user.data_nascimento.isoformat(),  # Convertendo objeto de data para ISO formato aceito pelo banco
+                    "data_nascimento": user.data_nascimento.isoformat(), 
                     "senha_criptografada": user.senha_criptografada
                 }
             )
@@ -74,8 +74,8 @@ class RepositorioUsuario(RepositorioBase):
                 data_nasc_usuario = None
 
             lista_de_amigos_obj: List[Usuario] = []
-            if usuario_id is not None: # Procede para buscar amigos apenas se o usuário principal foi encontrado
-                # Query CORRIGIDA para usar 'solicitacoes_amizade', 'destinatario', 'remetente'
+            if usuario_id is not None: 
+
                 query_amigos = text("""
                 SELECT u.id, u.cpf, u.nome, u.email, u.foto, u.data_nascimento, u.senha_criptografada
                 FROM usuarios u
@@ -94,10 +94,7 @@ class RepositorioUsuario(RepositorioBase):
                         amigos_rows = result_amigos.fetchall() 
                 except Exception as e:
                     print(f"ERRO ao buscar amigos para usuário ID {usuario_id}: {e}")
-                    # O traceback que você enviou indica que o erro é aqui.
-                    # Se a tabela realmente se chama 'solicitacoes_amizade', o erro
-                    # não deveria ser 'relation "solicitacoes_amizades" does not exist'
-                    # a menos que esta query corrigida não esteja sendo usada.
+
                     amigos_rows = []
 
                 for amigo_row in amigos_rows:

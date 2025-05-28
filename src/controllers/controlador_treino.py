@@ -80,18 +80,13 @@ class ControladorTreino:
             
         return treinos_dos_amigos
     
-    
+
 
     def curtir_treino(self, treino_id: int) -> bool:
-        """
-        Processa a ação de curtir um treino.
-        Retorna True se uma nova curtida foi efetivamente registrada no backend
-        (e o contador principal atualizado), False caso contrário.
-        """
+
         usuario_logado = self.pega_usuario_logado() 
         if not usuario_logado or not hasattr(usuario_logado, 'id') or usuario_logado.id is None:
             print("ERRO [ControladorTreino.curtir_treino]: Usuário não logado. Não é possível curtir.")
-            # Poderia levantar uma exceção ou notificar a view de forma diferente
             return False 
         
         if treino_id is None:
@@ -100,7 +95,6 @@ class ControladorTreino:
 
         print(f"DEBUG [ControladorTreino.curtir_treino]: Usuário ID {usuario_logado.id} ({usuario_logado.nome if hasattr(usuario_logado, 'nome') else ''}) está tentando curtir treino ID {treino_id}")
         
-        # Chama o repositório passando o ID do treino e o ID do usuário que curtiu
         sucesso_nova_curtida = self.repositorio.salvar_curtida(treino_id, usuario_logado.id)
         
         if sucesso_nova_curtida:

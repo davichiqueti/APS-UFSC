@@ -3,10 +3,10 @@ from tkinter import messagebox
 from typing import Callable, List
 from datetime import date
 
-# NOVOS IMPORTS PARA A IMAGEM
-import io # Para lidar com bytes da imagem
-import requests # Para baixar a imagem da URL
-from PIL import Image, ImageTk # Para processar e exibir a imagem com Tkinter
+
+import io 
+import requests 
+from PIL import Image, ImageTk 
 
 from models.usuario import Usuario
 from models.treino import Treino
@@ -25,7 +25,7 @@ class TelaSistema:
         self.btn_proximo_feed: tk.Button | None = None
         self.btn_curtir_treino: tk.Button | None = None
         
-        # NOVO: Label para a imagem do treino
+
         self.lbl_imagem_treino: tk.Label | None = None
         
         self.controlador_treino_ref = None
@@ -46,9 +46,9 @@ class TelaSistema:
 
         self.root_sistema = tk.Tk() 
         self.root_sistema.title(f"Feed - Bem-vindo(a), {usuario_logado.nome}!")
-        self.root_sistema.geometry("800x750") # Aumentei um pouco a altura para a imagem
+        self.root_sistema.geometry("800x750") 
 
-        # --- BARRA DE NAVEGAÇÃO ---
+
         frame_navegacao = tk.Frame(self.root_sistema, bd=1, relief=tk.RAISED)
         frame_navegacao.pack(side=tk.TOP, fill=tk.X, pady=(0, 5))
         tk.Label(frame_navegacao, text=f"Usuário: {usuario_logado.nome}", padx=10, font=("Arial", 10)).pack(side=tk.LEFT)
@@ -60,19 +60,16 @@ class TelaSistema:
                 callback_logout()
         tk.Button(frame_navegacao, text="Logout", command=acao_logout_confirmada).pack(side=tk.RIGHT, padx=10, pady=5)
 
-        # --- ÁREA DO FEED ---
+
         frame_feed_area = tk.Frame(self.root_sistema, padx=10, pady=10)
         frame_feed_area.pack(expand=True, fill=tk.BOTH)
         tk.Label(frame_feed_area, text="FEED DE TREINOS DOS AMIGOS", font=("Arial", 18, "bold")).pack(pady=(5,15))
 
-        # Ajustado para acomodar a imagem primeiro
         frame_treino_display = tk.Frame(frame_feed_area, bd=2, relief=tk.GROOVE, padx=15, pady=15)
         frame_treino_display.pack(pady=10, fill=tk.X)
-        # Removido height e pack_propagate para deixar o conteúdo definir a altura
 
-        # NOVO: Label para exibir a imagem do treino
         self.lbl_imagem_treino = tk.Label(frame_treino_display)
-        self.lbl_imagem_treino.pack(pady=(0, 10)) # Espaço abaixo da imagem
+        self.lbl_imagem_treino.pack(pady=(0, 10)) 
 
         self.lbl_autor_treino = tk.Label(frame_treino_display, text="", font=("Arial", 10, "italic"), anchor="w")
         self.lbl_autor_treino.pack(fill=tk.X, pady=(0,2))
@@ -81,7 +78,7 @@ class TelaSistema:
         self.lbl_detalhes_treino = tk.Label(frame_treino_display, text="", justify=tk.LEFT, wraplength=750, anchor="w")
         self.lbl_detalhes_treino.pack(pady=5, fill=tk.X)
 
-        # --- BOTÕES DE INTERAÇÃO DO FEED ---
+
         frame_interacao_feed = tk.Frame(frame_feed_area)
         frame_interacao_feed.pack(pady=10)
         self.btn_anterior_feed = tk.Button(frame_interacao_feed, text="<< Treino Anterior", command=self.acao_treino_anterior)
@@ -108,7 +105,7 @@ class TelaSistema:
 
         if not all([self.lbl_autor_treino, self.lbl_descricao_treino, self.lbl_detalhes_treino, 
                     self.btn_curtir_treino, self.btn_anterior_feed, self.btn_proximo_feed,
-                    self.lbl_imagem_treino]): # Adicionado lbl_imagem_treino à verificação
+                    self.lbl_imagem_treino]):
             print("WARN [TelaSistema.exibirTreino]: Widgets de display não inicializados.")
             return
 
@@ -116,36 +113,33 @@ class TelaSistema:
         self.btn_proximo_feed.config(state=tk.NORMAL)
         self.btn_curtir_treino.config(state=tk.NORMAL)
         
-        # --- CARREGAR E EXIBIR IMAGEM ---
         if hasattr(treino_atual, 'imagem') and treino_atual.imagem:
             try:
                 print(f"DEBUG [TelaSistema.exibirTreino]: Carregando imagem de {treino_atual.imagem}")
-                # Define um tamanho máximo para a imagem exibida
                 max_width = 400
                 max_height = 300
 
                 response = requests.get(treino_atual.imagem, stream=True)
-                response.raise_for_status() # Levanta um erro para códigos de status ruins (4xx ou 5xx)
+                response.raise_for_status() 
                 
                 image_bytes = response.content
                 pil_image = Image.open(io.BytesIO(image_bytes))
                 
-                # Redimensiona a imagem mantendo a proporção
                 pil_image.thumbnail((max_width, max_height), Image.Resampling.LANCZOS)
                 
                 tk_image = ImageTk.PhotoImage(pil_image)
                 
                 self.lbl_imagem_treino.config(image=tk_image)
-                self.lbl_imagem_treino.image = tk_image # Mantém uma referência para evitar garbage collection
+                self.lbl_imagem_treino.image = tk_image
             except Exception as e:
                 print(f"ERRO [TelaSistema.exibirTreino]: Não foi possível carregar a imagem {treino_atual.imagem}: {e}")
-                self.lbl_imagem_treino.config(image=None, text="Imagem não disponível") # Limpa se houver erro
-                self.lbl_imagem_treino.image = None # Limpa referência antiga
+                self.lbl_imagem_treino.config(image=None, text="Imagem não disponível") 
+                self.lbl_imagem_treino.image = None 
         else:
-            self.lbl_imagem_treino.config(image=None, text="") # Sem imagem para exibir
+            self.lbl_imagem_treino.config(image=None, text="")
             self.lbl_imagem_treino.image = None
 
-        # --- ATUALIZAR OUTROS LABELS ---
+
         nome_autor = "Autor Desconhecido"
         if treino_atual.usuario and hasattr(treino_atual.usuario, 'nome'):
             nome_autor = treino_atual.usuario.nome
@@ -177,10 +171,6 @@ class TelaSistema:
         self.btn_anterior_feed.config(state=tk.DISABLED)
         self.btn_proximo_feed.config(state=tk.DISABLED)
 
-    # ... (seus outros métodos: acao_treino_anterior, acao_treino_proximo, acao_curtir_treino,
-    #      fechar_tela, iniciar_loop_eventos) ...
-    # Lembre-se que acao_curtir_treino deve usar self.controlador_treino_ref
-    # e que os métodos fechar_tela e iniciar_loop_eventos devem usar self.root_sistema.
     def acao_treino_anterior(self):
         if not self.treinos or len(self.treinos) <= 1: return 
         novo_indice = self.indice_treino_atual - 1
@@ -194,9 +184,8 @@ class TelaSistema:
         self.exibirTreino(novo_indice)
         
     def acao_curtir_treino(self):
-        if not self.root_sistema or not self.root_sistema.winfo_exists(): return # Verifica se a janela existe
+        if not self.root_sistema or not self.root_sistema.winfo_exists(): return 
         if not self.treinos or not (0 <= self.indice_treino_atual < len(self.treinos)):
-            # Isso não deveria acontecer se os botões estiverem desabilitados corretamente
             print("WARN [TelaSistema.acao_curtir_treino]: Sem treinos ou índice inválido.")
             return 
 
@@ -209,26 +198,18 @@ class TelaSistema:
         if self.controlador_treino_ref and hasattr(self.controlador_treino_ref, 'curtir_treino'):
             print(f"DEBUG [TelaSistema.acao_curtir_treino]: Usuário '{self.usuario_logado_atual.nome if self.usuario_logado_atual else 'N/A'}' clicou em curtir para treino ID {treino_atual.id_treino}")
             
-            # O ControladorTreino.curtir_treino agora retorna True se foi uma *nova* curtida
-            # que resultou no incremento do contador principal no backend.
+
             foi_nova_curtida_no_backend = self.controlador_treino_ref.curtir_treino(treino_atual.id_treino)
             
             if foi_nova_curtida_no_backend:
-                # Se o backend confirmou que é uma nova curtida e o contador principal foi incrementado,
-                # então atualizamos o contador local na UI para feedback visual imediato.
+
                 treino_atual.curtidas += 1 
-                self.exibirTreino(self.indice_treino_atual) # Reexibe para atualizar a contagem na UI
+                self.exibirTreino(self.indice_treino_atual) 
                 print(f"DEBUG [TelaSistema.acao_curtir_treino]: UI atualizada para nova curtida no treino ID {treino_atual.id_treino}.")
             else:
-                # Se False, pode ser que o usuário já curtiu ou ocorreu um erro no backend.
-                # O backend (repositório/controlador) já imprimiu logs mais detalhados.
-                # Para a UI, podemos apenas não fazer nada ou dar uma mensagem sutil de "Já curtido".
-                # Não incrementamos o contador local aqui.
+
                 print(f"INFO [TelaSistema.acao_curtir_treino]: Ação de curtir para treino ID {treino_atual.id_treino} não resultou em novo incremento na UI (já curtido ou erro no backend).")
-                # Opcional: se quiser dar um feedback de "já curtiu"
-                # messagebox.showinfo("Curtir", "Você já curtiu este treino!", parent=self.root_sistema)
-                # Mas geralmente, se o botão de curtir tivesse um estado visual (ex: preenchido vs. vazio),
-                # ele já indicaria o estado "curtido".
+
         else:
             print("ERRO [TelaSistema.acao_curtir_treino]: Referência ao ControladorTreino não configurada ou método 'curtir_treino' ausente.")
             messagebox.showerror("Erro Interno", "Não foi possível processar a ação de curtir.", parent=self.root_sistema)

@@ -33,12 +33,7 @@ class ControladorUsuario:
         data_nascimento: date,
         senha: str
     ):
-        """
-        Responsável por:
-        - Instanciar entidade
-        - Delegar persistência para o repositório
-        - Gerar exceção caso um problema aconteça
-        """
+
         senha_criptografada = cipher.encrypt(senha.encode('utf-8')).decode('utf-8')
         user = Usuario(
             cpf=cpf,
