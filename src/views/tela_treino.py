@@ -1,6 +1,17 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from typing import Callable
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
+# Configure o Cloudinary com suas credenciais AQUI
+# SUBSTITUA com seu cloud_name, api_key e api_secret
+cloudinary.config(
+  cloud_name = "dlugl1sww",
+  api_key = "126437426144361",
+  api_secret = "n7qzsbIKxct-MStresJxJkuVmYc"
+)
 
 class TelaTreino:
     def __init__(self):
@@ -38,15 +49,23 @@ class TelaTreino:
         entry_duracao.pack(side=tk.LEFT, expand=True, fill=tk.X)
 
         # Imagem
-        imagem_path = {'value': ''}
+        imagem_path = {'value': ''} # Irá armazenar a URL da imagem do Cloudinary
+
         def carregar_imagem():
             path = filedialog.askopenfilename(
                 title="Selecione uma imagem",
                 filetypes=(("Imagens", "*.jpg *.jpeg *.png *.gif"), ("Todos", "*.*"))
             )
-            imagem_path['value'] = path or ''
-            nome = path.split('/')[-1].split('\\')[-1] if path else 'Nenhuma imagem selecionada.'
-            lbl_imagem.config(text=f"Imagem: {nome}")
+            if path:
+                # Faz o upload para o Cloudinary
+                upload_result = cloudinary.uploader.upload(path)
+                # Armazena a URL segura da imagem
+                imagem_path['value'] = upload_result['secure_url']
+                # Atualiza o label para mostrar o public_id da imagem no Cloudinary
+                lbl_imagem.config(text=f"Imagem enviada: {upload_result['public_id']}")
+            else:
+                imagem_path['value'] = ''
+                lbl_imagem.config(text="Nenhuma imagem selecionada.")
 
         btn_imagem = ttk.Button(main_frame, text="CARREGAR IMAGEM", command=carregar_imagem)
         btn_imagem.pack(pady=10, fill=tk.X)
@@ -57,9 +76,9 @@ class TelaTreino:
         def on_confirmar():
             desc = entry_descricao.get().strip()
             dur = entry_duracao.get().strip()
-            img = imagem_path['value']
+            img_url = imagem_path['value'] # Agora é a URL do Cloudinary
             try:
-                callback_registrar(desc, dur, img)
+                callback_registrar(desc, dur, img_url)
                 messagebox.showinfo("Sucesso", "Treino registrado com sucesso.", parent=root)
                 root.destroy()
             except Exception as e:
@@ -69,4 +88,3 @@ class TelaTreino:
         btn_confirmar.pack(pady=20, fill=tk.X)
 
         root.mainloop()
-#teste
