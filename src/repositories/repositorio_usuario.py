@@ -39,10 +39,15 @@ class RepositorioUsuario(RepositorioBase):
         FROM usuarios
         WHERE nome = :nome
         """)
-        row = self._conn.execute(
-            statement=query,
-            parameters={"nome": nome}
-        ).fetchone()
+        row = None
+        
+        with self._conn.begin() as transactions:
+            result = self._conn.execute(
+                statement=query,
+                parameters={"nome": nome}
+            )
+            row = result.fetchone()
+        
         if row:
             return Usuario(
                 id=row[0],
