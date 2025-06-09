@@ -2,12 +2,14 @@ from tkinter import messagebox
 from views.tela_sistema import TelaSistema
 from controllers.controlador_usuario import ControladorUsuario
 from controllers.controlador_treino import ControladorTreino
-
+from views.tela_usuario import TelaUsuario
 class ControladorSistema:
     def __init__(self):
         self.tela_sistema = TelaSistema(self) 
         self.controlador_usuario = ControladorUsuario(self)
         self.controlador_treino = ControladorTreino(self) 
+        self.tela_usuario = TelaUsuario()
+        
 
     def buscar_usuario_logado(self):
         return self.controlador_usuario.usuario_logado
@@ -56,13 +58,18 @@ class ControladorSistema:
         self.controlador_usuario.abrir_tela_login()
 
     def navegar_para_perfil(self):
-
-        print("DEBUG [ControladorSistema]: Navegando para Tela de Perfil.")
-        if self.tela_sistema: self.tela_sistema.fechar_tela() 
-        messagebox.showinfo("Navegação", "Tela de Perfil ainda não implementada.")
-        if self.controlador_usuario.usuario_logado: self.inicializarFeed()
-        else: self.iniciar()
-
+        usuario_logado = self.buscar_usuario_logado()
+        
+        if usuario_logado:
+            self.tela_usuario.exibir_tela_perfil(
+                usuario=usuario_logado,  # <-- ESSENCIAL!
+                callback_voltar=self.inicializarFeed,  # ou outra função de voltar
+                controlador_usuario=self.controlador_usuario,  # <-- ESSENCIAL!
+                usuario_logado=usuario_logado  # <-- ESSENCIAL!
+            )
+        else:
+            self.iniciar()
+  
     def navegar_para_busca(self):
 
         print("DEBUG [ControladorSistema]: Navegando para Tela de Busca.")

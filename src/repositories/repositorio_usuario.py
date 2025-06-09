@@ -126,3 +126,42 @@ class RepositorioUsuario(RepositorioBase):
         
         print(f"DEBUG [RepositorioUsuario.busca_por_nome]: Usuário '{nome}' não encontrado.")
         return None
+    
+    def busca_foto_por_id(self, user_id: int) -> Optional[str]:
+        query = text("""
+        SELECT foto FROM usuarios WHERE id = :user_id
+        """)
+        try:
+            with self._conn.begin():
+                result = self._conn.execute(query, {"user_id": user_id})
+                row = result.fetchone()
+                if row:
+                    return row[0]  # Retorna a foto se encontrada
+        except Exception as e:
+            print(f"ERRO ao buscar foto do usuário ID {user_id}: {e}")
+        return None
+    
+
+    def buscar_amizades_aceitas(self, usuario_id):
+        query = text("""
+            SELECT u.*
+            FROM usuarios u
+            JOIN solicitacoes_amizade s
+              ON ((s.destinatario = u.id OR s.remetente = u.id)
+                  AND (s.destinatario = :uid OR s.remetente = :uid)
+                  AND u.id != :uid)
+            WHERE s.status = 'aceito'
+        """)
+        result = self._conn.execute(query, {"uid": usuario_id})
+        amigos = []
+        for row in result.fetchall():
+            amigos.append(Usuario(
+                id=row[0],
+                cpf=row[1],
+                nome=row[2],
+                email=row[3],
+                foto=row[4],
+                data_nascimento=row[5],
+                senha_criptografada=row[6]
+            ))
+        return amigos

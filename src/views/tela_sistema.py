@@ -3,11 +3,12 @@ from tkinter import messagebox
 from typing import Callable, List
 from datetime import date
 
+# NOVOS IMPORTS PARA A IMAGEM
+import io # Para lidar com bytes da imagem
+import requests # Para baixar a imagem da URL
+from PIL import Image, ImageTk # Para processar e exibir a imagem com Tkinter
 
 import io 
-import requests 
-from PIL import Image, ImageTk 
-
 from models.usuario import Usuario
 from models.treino import Treino
 
@@ -223,3 +224,5 @@ class TelaSistema:
         if self.root_sistema and self.root_sistema.winfo_exists():
             self.root_sistema.mainloop()
             print("DEBUG [TelaSistema.iniciar_loop_eventos]: Mainloop de root_sistema terminou.")
+
+    

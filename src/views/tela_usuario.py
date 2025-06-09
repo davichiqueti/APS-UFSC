@@ -2,7 +2,11 @@ import tkinter as tk
 from tkinter import messagebox
 from typing import Callable
 from datetime import datetime
-
+import requests
+from PIL import Image, ImageTk
+import io
+from repositories.repositorio_usuario import RepositorioUsuario
+from PIL import ImageDraw
 
 class TelaUsuario():
     def __init__(self):
@@ -131,3 +135,44 @@ class TelaUsuario():
         cadastro_button.pack(pady=5)
 
         root.mainloop()
+
+
+    def exibir_tela_perfil(self, usuario, callback_voltar, usuario_logado=None, controlador_usuario=None):
+        root = tk.Toplevel()
+        root.title("Perfil do Usuário")
+        root.geometry("500x600")
+        # ... resto do código ...
+    
+        card_frame = tk.Frame(root, bg="#444444")
+        card_frame.pack(pady=20)
+    
+        def comando_editar_perfil():
+            pass  # Implemente se necessário
+    
+        def comando_amizades():
+            if controlador_usuario:
+                root.destroy()
+                controlador_usuario.solicitarVisualizarAmizades(usuario, callback_voltar)
+    
+        def comando_medalhas():
+            if controlador_usuario:
+                root.destroy()
+                controlador_usuario.solicitarVisualizarMedalhas(usuario, callback_voltar)
+    
+        # Só mostra "Editar Perfil" se for o usuário logado
+        botoes = []
+        if usuario_logado and str(usuario_logado.cpf) == str(usuario.cpf):
+            botoes.append(("Editar Perfil", comando_editar_perfil))
+        botoes.append(("Medalhas", comando_medalhas))
+        botoes.append(("Amizades", comando_amizades))
+        botoes.append(("Ranking", None))
+        botoes.append(("Meus Treinos", None))
+    
+        for i, (texto, comando) in enumerate(botoes):
+            btn = tk.Button(
+                card_frame, text=texto, width=22, height=2,
+                bg="#333333", fg="#f0f0f0", font=("Arial", 11, "bold"),
+                relief="groove", bd=1, cursor="hand2", activebackground="#555555", activeforeground="#f0f0f0",
+                command=comando if comando else lambda: None
+            )
+            btn.grid(row=i // 2, column=i % 2, padx=10, pady=8, sticky="ew")
