@@ -141,9 +141,99 @@ class TelaUsuario():
         root = tk.Toplevel()
         root.title("Perfil do Usuário")
         root.geometry("500x600")
+        root.configure(bg="#222222")
+
+        # Header com nome e botão de voltar
+        header = tk.Frame(root, bg="#222222")
+        header.pack(fill="x", pady=(10, 0))
+        tk.Button(header, text="← Voltar", command=lambda: [root.destroy(), callback_voltar()],
+                  bg="#333333", fg="#f0f0f0", font=("Arial", 10, "bold"),
+                  relief="flat", cursor="hand2", activebackground="#444444", activeforeground="#f0f0f0"
+        ).pack(side="left", padx=10)
+        tk.Label(header, text=usuario.nome, font=("Arial", 18, "bold"), bg="#222222", fg="#f0f0f0").pack(side="left", padx=20)
+
+        # Foto de perfil circular
+        foto_url = getattr(usuario, "foto", None)
+        foto_img = None
+        if foto_url:
+            try:
+                response = requests.get(foto_url, timeout=5)
+                img = Image.open(io.BytesIO(response.content)).convert("RGBA")
+                img = img.resize((120, 120), Image.LANCZOS)
+                # Criar máscara circular
+                mask = Image.new("L", (120, 120), 0)
+                draw = ImageDraw.Draw(mask)
+                draw.ellipse((0, 0, 120, 120), fill=255)
+                img.putalpha(mask)
+                # Fundo branco arredondado
+                bg = Image.new("RGBA", (130, 130), (255, 255, 255, 255))
+                bg.paste(img, (5, 5), img)
+                foto_img = ImageTk.PhotoImage(bg)
+            except Exception:
+                foto_img = None
+
+        foto_frame = tk.Frame(root, bg="#222222")
+        foto_frame.pack(pady=(30, 10))
+        if foto_img:
+            tk.Label(foto_frame, image=foto_img, bg="#222222").pack()
+        else:
+            # Placeholder circular
+            canvas = tk.Canvas(foto_frame, width=130, height=130, bg="#222222", highlightthickness=0)
+            canvas.create_oval(5, 5, 125, 125, fill="#444444", outline="#888888", width=2)
+            canvas.create_text(65, 65, text="?", fill="#f0f0f0", font=("Arial", 48, "bold"))
+            canvas.pack()
+
+        # Informações do usuário
+        info_frame = tk.Frame(root, bg="#222222")
+        info_frame.pack(pady=5)
+        tk.Label(info_frame, text=f"@{usuario.nome}", font=("Arial", 13, "italic"), bg="#222222", fg="#bbbbbb").pack()
+        tk.Label(info_frame, text=f"Email: {usuario.email}", font=("Arial", 11), bg="#222222", fg="#f0f0f0").pack()
+        tk.Label(info_frame, text=f"CPF: {usuario.cpf}", font=("Arial", 11), bg="#222222", fg="#f0f0f0").pack()
+        if hasattr(usuario, "data_nascimento"):
+            tk.Label(info_frame, text=f"Nascimento: {usuario.data_nascimento.strftime('%d/%m/%Y')}", font=("Arial", 11), bg="#7C7C7C", fg="#f0f0f0").pack()
+
+        # Card de botões
+        card_frame = tk.Frame(root, bg="#525252")
+        card_frame.pack(pady=30)
+
+        def comando_editar_perfil():
+            pass  # Implemente se necessário
+
+        def comando_amizades():
+            if controlador_usuario:
+                root.destroy()
+                controlador_usuario.solicitarVisualizarAmizades(usuario, callback_voltar)
+
+        def comando_medalhas():
+            if controlador_usuario:
+                root.destroy()
+                controlador_usuario.solicitarVisualizarMedalhas(usuario, callback_voltar)
+
+        # Só mostra "Editar Perfil" se for o usuário logado
+        botoes = []
+        if usuario_logado and str(usuario_logado.cpf) == str(usuario.cpf):
+            botoes.append(("Editar Perfil", comando_editar_perfil))
+        botoes.append(("Medalhas", comando_medalhas))
+        botoes.append(("Amizades", comando_amizades))
+        botoes.append(("Ranking", None))
+        botoes.append(("Meus Treinos", None))
+
+        for i, (texto, comando) in enumerate(botoes):
+            btn = tk.Button(
+                card_frame, text=texto, width=22, height=2,
+                bg="#6B6B6B", fg="#f0f0f0", font=("Arial", 11, "bold"),
+                relief="groove", bd=1, cursor="hand2", activebackground="#666666", activeforeground="#f0f0f0",
+                command=comando if comando else lambda: None
+            )
+            btn.grid(row=i // 2, column=i % 2, padx=10, pady=8, sticky="ew")
+
+        root.mainloop()
+        root = tk.Toplevel()
+        root.title("Perfil do Usuário")
+        root.geometry("500x600")
         # ... resto do código ...
     
-        card_frame = tk.Frame(root, bg="#444444")
+        card_frame = tk.Frame(root, bg="#777777")
         card_frame.pack(pady=20)
     
         def comando_editar_perfil():
@@ -171,7 +261,7 @@ class TelaUsuario():
         for i, (texto, comando) in enumerate(botoes):
             btn = tk.Button(
                 card_frame, text=texto, width=22, height=2,
-                bg="#333333", fg="#f0f0f0", font=("Arial", 11, "bold"),
+                bg="#808080", fg="#f0f0f0", font=("Arial", 11, "bold"),
                 relief="groove", bd=1, cursor="hand2", activebackground="#555555", activeforeground="#f0f0f0",
                 command=comando if comando else lambda: None
             )

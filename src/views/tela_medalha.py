@@ -95,8 +95,7 @@ class TelaMedalha:
         # Informações da medalha
         info_frame = tk.Frame(frame, bg=cor_fundo)
         info_frame.pack(side="left", padx=10, fill="x", expand=True)
-        tk.Label(info_frame, text=f"Descrição: {getattr(medalha, 'categoria', '')}", font=("Arial", 12, "bold"), bg=cor_fundo).pack(anchor="w")
-        tk.Label(info_frame, text=f"Descrição: {getattr(medalha, 'descricao', '')}", font=("Arial", 11), bg=cor_fundo).pack(anchor="w")
+        tk.Label(info_frame, text=f"Descrição: {getattr(medalha, 'descricao', '')}", font=("Arial", 12, "bold"), bg=cor_fundo).pack(anchor="w")
         tk.Label(info_frame, text=f"Valor Base: {getattr(medalha, 'valor_base', '')}", font=("Arial", 10), bg=cor_fundo).pack(anchor="w")
         status = "Conquistada" if conquistada else "Não conquistada"
         tk.Label(info_frame, text=f"Status: {status}", font=("Arial", 10, "italic"), bg=cor_fundo, fg="#228B22" if conquistada else "#888888").pack(anchor="w")

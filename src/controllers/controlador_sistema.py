@@ -20,13 +20,17 @@ class ControladorSistema:
         print("DEBUG [ControladorSistema.iniciar]: Fluxo principal (login/sistema) aparentemente concluído.")
 
     def inicializarFeed(self):
+        # Feche a tela anterior, se existir
+        if self.tela_sistema and self.tela_sistema.root_sistema and self.tela_sistema.root_sistema.winfo_exists():
+            self.tela_sistema.fechar_tela()
+    
         usuario_atual = self.controlador_usuario.usuario_logado
         if usuario_atual:
             print(f"\nDEBUG [ControladorSistema.inicializarFeed]: Usuário {usuario_atual.nome} logado.")
             print("DEBUG [ControladorSistema.inicializarFeed]: Solicitando treinos das amizades ao ControladorTreino...")
             
             lista_de_treinos_para_o_feed = self.controlador_treino.buscar_treinos_amizades(usuario_atual)
-
+    
             print("DEBUG [ControladorSistema.inicializarFeed]: Configurando UI da TelaSistema via exibir_tela_principal...")
             self.tela_sistema.exibir_tela_principal(
                 usuario_logado=usuario_atual,
