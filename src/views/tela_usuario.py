@@ -2,7 +2,11 @@ import tkinter as tk
 from tkinter import messagebox
 from typing import Callable
 from datetime import datetime
-
+import requests
+from PIL import Image, ImageTk
+import io
+from repositories.repositorio_usuario import RepositorioUsuario
+from PIL import ImageDraw
 
 class TelaUsuario():
     def __init__(self):
@@ -61,7 +65,7 @@ class TelaUsuario():
         def cadastrar_usuario():
             if senha_entry.get() != confirmar_senha_entry.get():
                 messagebox.showerror("Erro", "As senhas não coincidem!")
-                return  # Apenas retorna, sem recriar a tela
+                return  
             try:
                 data_nascimento = datetime.strptime(data_nascimento_entry.get(), "%d/%m/%Y").date()
                 callback_cadastro(
@@ -83,35 +87,27 @@ class TelaUsuario():
         ).pack(pady=10)
 
         def acao_ir_para_login():
-            root.destroy()  # Fecha a janela de cadastro # Changed from root_login
-            callback_abrir_login() # Chama o callback para abrir a tela de login
+            root.destroy()  
+            callback_abrir_login() 
 
-        tk.Button(root, text="Já tem uma conta? Entre aqui!", command=acao_ir_para_login).pack(pady=10)  # Changed from root_login
+        tk.Button(root, text="Já tem uma conta? Entre aqui!", command=acao_ir_para_login).pack(pady=10) 
 
 
-# Ensure you have 'import tkinter as tk', 'from tkinter import messagebox',
-# and 'from typing import Callable' at the top of your tela_usuario.py file.
 
     def exibir_tela_login(self, callback_login: Callable, callback_abrir_cadastro: Callable, callback_sucesso_proxima_etapa: Callable):
-        """
-        Cria e exibe a janela de login.
 
-        Args:
-            callback_login: Função a ser chamada ao tentar fazer login.
-            callback_abrir_cadastro: Função a ser chamada para navegar para a tela de cadastro.
-        """
-        root = tk.Tk()  # Changed from root_login
-        root.title("Login de Usuário")  # Changed from root_login
-        root.geometry("350x300") # Largura x Altura
+        root = tk.Tk()
+        root.title("Login de Usuário")
+        root.geometry("350x300")
 
-        tk.Label(root, text="LOGIN", font=("Arial", 20, "bold")).pack(pady=20)  # Changed from root_login
+        tk.Label(root, text="LOGIN", font=("Arial", 20, "bold")).pack(pady=20) 
 
-        tk.Label(root, text="Nome de Usuário:").pack(anchor="w", padx=40)  # Changed from root_login
-        nome_usuario_entry = tk.Entry(root, width=30)  # Changed from root_login
+        tk.Label(root, text="Nome de Usuário:").pack(anchor="w", padx=40)
+        nome_usuario_entry = tk.Entry(root, width=30) 
         nome_usuario_entry.pack(pady=5, padx=40, fill="x")
 
-        tk.Label(root, text="Senha:").pack(anchor="w", padx=40)  # Changed from root_login
-        senha_entry = tk.Entry(root, show="*", width=30)  # Changed from root_login
+        tk.Label(root, text="Senha:").pack(anchor="w", padx=40)  
+        senha_entry = tk.Entry(root, show="*", width=30)  
         senha_entry.pack(pady=5, padx=40, fill="x")
 
         def acao_tentar_login():
@@ -119,28 +115,154 @@ class TelaUsuario():
             senha = senha_entry.get()
             try:
                 callback_login(nome_usuario, senha)
-                messagebox.showinfo("Login", "Login realizado com sucesso!", parent=root)  # Changed from root_login
-                root.destroy()  # Changed from root_login
+                messagebox.showinfo("Login", "Login realizado com sucesso!", parent=root) 
+                root.destroy()  
                 callback_sucesso_proxima_etapa()
-            except ValueError as e: # Captura exceções levantadas pelo controlador
-                messagebox.showerror("Erro de Login", str(e), parent=root)  # Changed from root_login
-            except Exception as e: # Captura outras exceções inesperadas
-                messagebox.showerror("Erro Inesperado", f"Ocorreu um erro: {e}", parent=root)  # Changed from root_login
+            except ValueError as e: 
+                messagebox.showerror("Erro de Login", str(e), parent=root)
+            except Exception as e: 
+                messagebox.showerror("Erro Inesperado", f"Ocorreu um erro: {e}", parent=root) 
 
 
-        login_button = tk.Button(root, text="Login", command=acao_tentar_login, width=15)  # Changed from root_login
+        login_button = tk.Button(root, text="Login", command=acao_tentar_login, width=15) 
         login_button.pack(pady=20)
 
         def acao_ir_para_cadastro():
-            root.destroy()  # Fecha a janela de login # Changed from root_login
-            callback_abrir_cadastro() # Chama o callback para abrir a tela de cadastro
+            root.destroy()  
+            callback_abrir_cadastro() 
 
-        cadastro_button = tk.Button(root, text="Não tem uma conta? Cadastre-se", command=acao_ir_para_cadastro)  # Changed from root_login
+        cadastro_button = tk.Button(root, text="Não tem uma conta? Cadastre-se", command=acao_ir_para_cadastro) 
         cadastro_button.pack(pady=5)
 
-
-        
-
-        # TODO: Criar botão que muda para tela de login
-        #tk.Button(root, text="Já tem uma conta? Faça login", command=...).pack()
         root.mainloop()
+
+
+    def exibir_tela_perfil(self, usuario, callback_voltar, usuario_logado=None, controlador_usuario=None):
+        root = tk.Toplevel()
+        root.title("Perfil do Usuário")
+        root.geometry("500x600")
+        root.configure(bg="#222222")
+
+        # Header com nome e botão de voltar
+        header = tk.Frame(root, bg="#222222")
+        header.pack(fill="x", pady=(10, 0))
+        tk.Button(header, text="← Voltar", command=lambda: [root.destroy(), callback_voltar()],
+                  bg="#333333", fg="#f0f0f0", font=("Arial", 10, "bold"),
+                  relief="flat", cursor="hand2", activebackground="#444444", activeforeground="#f0f0f0"
+        ).pack(side="left", padx=10)
+        tk.Label(header, text=usuario.nome, font=("Arial", 18, "bold"), bg="#222222", fg="#f0f0f0").pack(side="left", padx=20)
+
+        # Foto de perfil circular
+        foto_url = getattr(usuario, "foto", None)
+        foto_img = None
+        if foto_url:
+            try:
+                response = requests.get(foto_url, timeout=5)
+                img = Image.open(io.BytesIO(response.content)).convert("RGBA")
+                img = img.resize((120, 120), Image.LANCZOS)
+                # Criar máscara circular
+                mask = Image.new("L", (120, 120), 0)
+                draw = ImageDraw.Draw(mask)
+                draw.ellipse((0, 0, 120, 120), fill=255)
+                img.putalpha(mask)
+                # Fundo branco arredondado
+                bg = Image.new("RGBA", (130, 130), (255, 255, 255, 255))
+                bg.paste(img, (5, 5), img)
+                foto_img = ImageTk.PhotoImage(bg)
+            except Exception:
+                foto_img = None
+
+        foto_frame = tk.Frame(root, bg="#222222")
+        foto_frame.pack(pady=(30, 10))
+        if foto_img:
+            tk.Label(foto_frame, image=foto_img, bg="#222222").pack()
+        else:
+            # Placeholder circular
+            canvas = tk.Canvas(foto_frame, width=130, height=130, bg="#222222", highlightthickness=0)
+            canvas.create_oval(5, 5, 125, 125, fill="#444444", outline="#888888", width=2)
+            canvas.create_text(65, 65, text="?", fill="#f0f0f0", font=("Arial", 48, "bold"))
+            canvas.pack()
+
+        # Informações do usuário
+        info_frame = tk.Frame(root, bg="#222222")
+        info_frame.pack(pady=5)
+        tk.Label(info_frame, text=f"@{usuario.nome}", font=("Arial", 13, "italic"), bg="#222222", fg="#bbbbbb").pack()
+        tk.Label(info_frame, text=f"Email: {usuario.email}", font=("Arial", 11), bg="#222222", fg="#f0f0f0").pack()
+        tk.Label(info_frame, text=f"CPF: {usuario.cpf}", font=("Arial", 11), bg="#222222", fg="#f0f0f0").pack()
+        if hasattr(usuario, "data_nascimento"):
+            tk.Label(info_frame, text=f"Nascimento: {usuario.data_nascimento.strftime('%d/%m/%Y')}", font=("Arial", 11), bg="#7C7C7C", fg="#f0f0f0").pack()
+
+        # Card de botões
+        card_frame = tk.Frame(root, bg="#525252")
+        card_frame.pack(pady=30)
+
+        def comando_editar_perfil():
+            pass  # Implemente se necessário
+
+        def comando_amizades():
+            if controlador_usuario:
+                root.destroy()
+                controlador_usuario.solicitarVisualizarAmizades(usuario, callback_voltar)
+
+        def comando_medalhas():
+            if controlador_usuario:
+                root.destroy()
+                controlador_usuario.solicitarVisualizarMedalhas(usuario, callback_voltar)
+
+        # Só mostra "Editar Perfil" se for o usuário logado
+        botoes = []
+        if usuario_logado and str(usuario_logado.cpf) == str(usuario.cpf):
+            botoes.append(("Editar Perfil", comando_editar_perfil))
+        botoes.append(("Medalhas", comando_medalhas))
+        botoes.append(("Amizades", comando_amizades))
+        botoes.append(("Ranking", None))
+        botoes.append(("Meus Treinos", None))
+
+        for i, (texto, comando) in enumerate(botoes):
+            btn = tk.Button(
+                card_frame, text=texto, width=22, height=2,
+                bg="#6B6B6B", fg="#f0f0f0", font=("Arial", 11, "bold"),
+                relief="groove", bd=1, cursor="hand2", activebackground="#666666", activeforeground="#f0f0f0",
+                command=comando if comando else lambda: None
+            )
+            btn.grid(row=i // 2, column=i % 2, padx=10, pady=8, sticky="ew")
+
+        root.mainloop()
+        root = tk.Toplevel()
+        root.title("Perfil do Usuário")
+        root.geometry("500x600")
+        # ... resto do código ...
+    
+        card_frame = tk.Frame(root, bg="#777777")
+        card_frame.pack(pady=20)
+    
+        def comando_editar_perfil():
+            pass  # Implemente se necessário
+    
+        def comando_amizades():
+            if controlador_usuario:
+                root.destroy()
+                controlador_usuario.solicitarVisualizarAmizades(usuario, callback_voltar)
+    
+        def comando_medalhas():
+            if controlador_usuario:
+                root.destroy()
+                controlador_usuario.solicitarVisualizarMedalhas(usuario, callback_voltar)
+    
+        # Só mostra "Editar Perfil" se for o usuário logado
+        botoes = []
+        if usuario_logado and str(usuario_logado.cpf) == str(usuario.cpf):
+            botoes.append(("Editar Perfil", comando_editar_perfil))
+        botoes.append(("Medalhas", comando_medalhas))
+        botoes.append(("Amizades", comando_amizades))
+        botoes.append(("Ranking", None))
+        botoes.append(("Meus Treinos", None))
+    
+        for i, (texto, comando) in enumerate(botoes):
+            btn = tk.Button(
+                card_frame, text=texto, width=22, height=2,
+                bg="#808080", fg="#f0f0f0", font=("Arial", 11, "bold"),
+                relief="groove", bd=1, cursor="hand2", activebackground="#555555", activeforeground="#f0f0f0",
+                command=comando if comando else lambda: None
+            )
+            btn.grid(row=i // 2, column=i % 2, padx=10, pady=8, sticky="ew")

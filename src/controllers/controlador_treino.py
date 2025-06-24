@@ -7,7 +7,7 @@ from typing import List
 
 class ControladorTreino:
     def __init__(self, controlador_sistema):
-        self.ctrl_sistema = controlador_sistema
+        self._controlador_sistema = controlador_sistema
         self.repositorio = RepositorioTreino()
         self.tela_treino = TelaTreino()
 
@@ -17,19 +17,19 @@ class ControladorTreino:
         )
     
     def pega_usuario_logado(self):
-        self.ctrl_sistema.buscar_usuario_logado()
+        return self._controlador_sistema.buscar_usuario_logado() 
 
     def registrar_treino(self, descricao: str, duracao_str: str, imagem_path: str) -> None:
         if not imagem_path:
             raise ValueError("Você deve anexar uma imagem para registrar o treino.")
-        # Obtém usuário
+
         usuario = self.pega_usuario_logado()
-        # Conversão de duração
+
         try:
             duracao = int(duracao_str) if duracao_str else 0
         except:
             duracao = 0
-        # Cria e persiste
+
         treino = Treino(
             descricao=descricao,
             duracao=duracao,
@@ -39,27 +39,23 @@ class ControladorTreino:
             curtidas=0
         )
         novo_id = self.repositorio.criar(treino)
-        treino.id = novo_id
+        treino.id_treino = novo_id
 
     
     def obter_treinos_do_usuario(self, usuario: Usuario) -> list[Treino]:
-        """
-        Obtém todos os treinos de um usuário específico.
-        """
+
         if not usuario or not hasattr(usuario, 'id') or usuario.id is None:
             print(f"WARN [ControladorTreino]: Tentativa de buscar treinos para usuário inválido: {usuario}")
             return []
-        # print(f"DEBUG [ControladorTreino]: Buscando treinos para usuário ID: {usuario.id} ({usuario.nome if hasattr(usuario, 'nome') else 'Nome não disponível'})")
+
         return self.repositorio.buscar_por_usuario_id(usuario.id)
     
 
 
 
     def buscar_treinos_amizades(self, usuario_logado: Usuario) -> List[Treino]:
-        """
-        Busca os treinos de todos os amigos do usuario_logado, chamando o repositório.
-        A ordenação já é feita pelo repositório.
-        """
+
+
         if not usuario_logado or not hasattr(usuario_logado, 'amizades') or not usuario_logado.amizades:
             print("DEBUG [ControladorTreino.buscar_treinos_amizades]: Usuário não logado ou sem amigos para buscar treinos.")
             return []
@@ -71,13 +67,11 @@ class ControladorTreino:
             return []
             
         print(f"DEBUG [ControladorTreino.buscar_treinos_amizades]: Buscando treinos para IDs de amigos: {ids_dos_amigos}")
+
+
         
-        # Chama o novo método do repositório que busca por uma lista de IDs
         treinos_dos_amigos = self.repositorio.buscar_treinos_amizades(ids_dos_amigos)
-        
-        # A ordenação já deve vir do repositório (ORDER BY t.data DESC)
-        # Se precisar reordenar ou fazer lógica adicional, pode ser feito aqui.
-        # Ex: treinos_dos_amigos.sort(key=lambda treino: treino.data if treino.data else date.min, reverse=True)
+       # treinos_dos_amigos = self.repositorio.buscar_treinos_amizades_mock()
         
         if treinos_dos_amigos:
             print(f"DEBUG [ControladorTreino.buscar_treinos_amizades]: {len(treinos_dos_amigos)} treinos de amigos retornados pelo repositório.")
@@ -85,7 +79,27 @@ class ControladorTreino:
             print("DEBUG [ControladorTreino.buscar_treinos_amizades]: Nenhum treino de amigo retornado pelo repositório.")
             
         return treinos_dos_amigos
+    
 
-    def curtir_treino(self, treino_id: int) -> bool: # Seu método existente
-        if treino_id is None: return False
-        return self.repositorio.salvar_curtida(treino_id)
+
+    def curtir_treino(self, treino_id: int) -> bool:
+
+        usuario_logado = self.pega_usuario_logado() 
+        if not usuario_logado or not hasattr(usuario_logado, 'id') or usuario_logado.id is None:
+            print("ERRO [ControladorTreino.curtir_treino]: Usuário não logado. Não é possível curtir.")
+            return False 
+        
+        if treino_id is None:
+            print("ERRO [ControladorTreino.curtir_treino]: ID do treino inválido para curtir.")
+            return False
+
+        print(f"DEBUG [ControladorTreino.curtir_treino]: Usuário ID {usuario_logado.id} ({usuario_logado.nome if hasattr(usuario_logado, 'nome') else ''}) está tentando curtir treino ID {treino_id}")
+        
+        sucesso_nova_curtida = self.repositorio.salvar_curtida(treino_id, usuario_logado.id)
+        
+        if sucesso_nova_curtida:
+            print(f"DEBUG [ControladorTreino.curtir_treino]: Nova curtida para treino ID {treino_id} por usuário ID {usuario_logado.id} processada com sucesso pelo repositório.")
+        else:
+            print(f"INFO [ControladorTreino.curtir_treino]: Ação de curtir para treino ID {treino_id} por usuário ID {usuario_logado.id} não resultou em nova curtida/incremento (já curtido ou erro no repo).")
+            
+        return sucesso_nova_curtida

@@ -13,7 +13,7 @@ class Treino:
         curtidas: int = 0
     ):
         # Atributos privados internos
-        self._id: int = id_treino
+        self._id_treino: int = id_treino
         self._descricao: str = descricao
         self._duracao: int = duracao  # Em minutos
         self._imagem: str = imagem
@@ -22,9 +22,12 @@ class Treino:
         self._curtidas: int = curtidas
 
     @property
-    def id(self) -> int:
-        """ID do treino (somente leitura)"""
-        return self._id
+    def id_treino(self) -> int:
+        return self._id_treino
+    
+    @id_treino.setter
+    def id_treino(self, valor: int) -> None:
+        self._id_treino = valor
 
     @property
     def descricao(self) -> str:
