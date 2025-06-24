@@ -38,7 +38,8 @@ class TelaSistema:
                                callback_logout: Callable,
                                callback_abrir_perfil: Callable,
                                callback_abrir_busca: Callable,
-                               callback_registrar_treino: Callable):
+                               callback_registrar_treino: Callable,
+                               callback_rankings: Callable):
         
         self.treinos = lista_de_treinos 
         self.indice_treino_atual = 0 
@@ -56,6 +57,7 @@ class TelaSistema:
         tk.Button(frame_navegacao, text="Meu Perfil", command=callback_abrir_perfil).pack(side=tk.LEFT, padx=5, pady=5)
         tk.Button(frame_navegacao, text="Buscar", command=callback_abrir_busca).pack(side=tk.LEFT, padx=5, pady=5)
         tk.Button(frame_navegacao, text="Registrar Treino", command=callback_registrar_treino).pack(side=tk.LEFT, padx=5, pady=5)
+        tk.Button(frame_navegacao, text="Rankings", command=callback_rankings).pack(side=tk.LEFT, padx=5, pady=5)
         def acao_logout_confirmada():
             if messagebox.askyesno("Logout", "Tem certeza que deseja sair?", parent=self.root_sistema):
                 callback_logout()
