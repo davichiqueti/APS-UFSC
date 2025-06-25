@@ -48,8 +48,9 @@ class ControladorUsuario:
         self._user_repository.criar(user)
         self._usuario_logado = user
 
-
-
+    def excluir_conta(self):
+        self._user_repository.excluir(self.usuario_logado)
+        self.usuario_logado = None
 
     def abrir_tela_login(self):
 

@@ -92,8 +92,6 @@ class TelaUsuario():
 
         tk.Button(root, text="Já tem uma conta? Entre aqui!", command=acao_ir_para_login).pack(pady=10) 
 
-
-
     def exibir_tela_login(self, callback_login: Callable, callback_abrir_cadastro: Callable, callback_sucesso_proxima_etapa: Callable):
 
         root = tk.Tk()
@@ -209,13 +207,24 @@ class TelaUsuario():
                 root.destroy()
                 controlador_usuario.solicitarVisualizarMedalhas(usuario, callback_voltar)
 
-        # Só mostra "Editar Perfil" se for o usuário logado
+        def comando_excluir_conta():
+            confirmacao = messagebox.askyesno(
+                "Confirmar Exclusão",
+                "Tem certeza que deseja excluir sua conta? Esta ação não poderá ser desfeita.",
+                parent=root
+            )
+            if confirmacao and controlador_usuario:
+                root.destroy()
+                controlador_usuario.excluir_conta()
+                exit()
+
+        # Só mostra "Editar Perfil" e "Excluir Conta" se for o usuário logado
         botoes = []
         if usuario_logado and str(usuario_logado.cpf) == str(usuario.cpf):
             botoes.append(("Editar Perfil", comando_editar_perfil))
+            botoes.append(("Excluir Conta", comando_excluir_conta))
         botoes.append(("Medalhas", comando_medalhas))
         botoes.append(("Amizades", comando_amizades))
-        botoes.append(("Ranking", None))
         botoes.append(("Meus Treinos", None))
 
         for i, (texto, comando) in enumerate(botoes):

@@ -28,6 +28,17 @@ class RepositorioUsuario(RepositorioBase):
                 }
             )
 
+    def excluir(self, user: Usuario):
+        query = text("""
+            DELETE FROM usuarios
+            WHERE id = :user_id
+        """)
+        with self._conn.begin():
+            self._conn.execute(
+                statement=query, 
+                parameters={"user_id": user.id}
+            )
+
     def busca_por_nome(self, nome: str) -> Optional[Usuario]:
         usuario_principal_data = None
         query_usuario = text("""
