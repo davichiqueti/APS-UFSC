@@ -12,6 +12,7 @@ class TelaUsuario():
     def __init__(self):
         pass
 
+    # ... (métodos exibir_tela_cadastro e exibir_tela_login permanecem inalterados) ...
     def exibir_tela_cadastro(self, callback_cadastro: Callable, callback_abrir_login: Callable):
         root = tk.Tk()
         root.title("Cadastrar Conta")
@@ -95,7 +96,6 @@ class TelaUsuario():
 
 
     def exibir_tela_login(self, callback_login: Callable, callback_abrir_cadastro: Callable, callback_sucesso_proxima_etapa: Callable):
-
         root = tk.Tk()
         root.title("Login de Usuário")
         root.geometry("350x300")
@@ -123,7 +123,6 @@ class TelaUsuario():
             except Exception as e: 
                 messagebox.showerror("Erro Inesperado", f"Ocorreu um erro: {e}", parent=root) 
 
-
         login_button = tk.Button(root, text="Login", command=acao_tentar_login, width=15) 
         login_button.pack(pady=20)
 
@@ -136,11 +135,12 @@ class TelaUsuario():
 
         root.mainloop()
 
-
-    def exibir_tela_perfil(self, usuario, callback_voltar, usuario_logado=None, controlador_usuario=None):
+    # --- MÉTODO MODIFICADO ---
+    def exibir_tela_perfil(self, usuario, callback_voltar, usuario_logado, controlador_usuario,
+                             is_amigo: bool, solicitacao_existente: dict | None, callback_enviar_solicitacao: Callable):
         root = tk.Tk()
         root.title("Perfil do Usuário")
-        root.geometry("500x600")
+        root.geometry("500x650") # Aumentei a altura para caber o novo botão/label
         root.configure(bg="#222222")
 
         # Header com nome e botão de voltar
@@ -160,12 +160,10 @@ class TelaUsuario():
                 response = requests.get(foto_url, timeout=5)
                 img = Image.open(io.BytesIO(response.content)).convert("RGBA")
                 img = img.resize((120, 120), Image.LANCZOS)
-                # Criar máscara circular
                 mask = Image.new("L", (120, 120), 0)
                 draw = ImageDraw.Draw(mask)
                 draw.ellipse((0, 0, 120, 120), fill=255)
                 img.putalpha(mask)
-                # Fundo branco arredondado
                 bg = Image.new("RGBA", (130, 130), (255, 255, 255, 255))
                 bg.paste(img, (5, 5), img)
                 foto_img = ImageTk.PhotoImage(bg)
@@ -177,12 +175,31 @@ class TelaUsuario():
         if foto_img:
             tk.Label(foto_frame, image=foto_img, bg="#222222").pack()
         else:
-            # Placeholder circular
             canvas = tk.Canvas(foto_frame, width=130, height=130, bg="#222222", highlightthickness=0)
             canvas.create_oval(5, 5, 125, 125, fill="#444444", outline="#888888", width=2)
             canvas.create_text(65, 65, text="?", fill="#f0f0f0", font=("Arial", 48, "bold"))
             canvas.pack()
 
+        # --- LÓGICA DO BOTÃO DE AMIZADE ---
+        frame_amizade = tk.Frame(root, bg="#222222")
+        frame_amizade.pack(pady=10)
+        
+        # Só mostra o botão/status se não for o perfil do próprio usuário
+        if str(usuario_logado.cpf) != str(usuario.cpf):
+            if is_amigo:
+                tk.Label(frame_amizade, text="Vocês já são amigos", font=("Arial", 11, "italic"), bg="#222222", fg="#4CAF50").pack()
+            elif solicitacao_existente:
+                tk.Label(frame_amizade, text="Solicitação de amizade pendente", font=("Arial", 11, "italic"), bg="#222222", fg="#FFC107").pack()
+            else:
+                btn_add_amigo = tk.Button(
+                    frame_amizade, text="Adicionar Amigo", width=20,
+                    bg="#4CAF50", fg="#ffffff", font=("Arial", 11, "bold"),
+                    relief="raised", bd=2, cursor="hand2",
+                    command=lambda: [callback_enviar_solicitacao(usuario), root.destroy(), callback_voltar()] # Envia e fecha a tela
+                )
+                btn_add_amigo.pack()
+        # --- FIM DA LÓGICA DE AMIZADE ---
+        
         # Informações do usuário
         info_frame = tk.Frame(root, bg="#222222")
         info_frame.pack(pady=5)
@@ -194,10 +211,10 @@ class TelaUsuario():
 
         # Card de botões
         card_frame = tk.Frame(root, bg="#525252")
-        card_frame.pack(pady=30)
+        card_frame.pack(pady=20)
 
         def comando_editar_perfil():
-            pass  # Implemente se necessário
+            pass
 
         def comando_amizades():
             if controlador_usuario:
@@ -207,9 +224,8 @@ class TelaUsuario():
         def comando_medalhas():
             if controlador_usuario:
                 root.destroy()
-                controlador_usuario.solicitarVisualizarMedalhas(usuario, callback_voltar)
+                controlador_usuario.solicitarVisualizarMedalhas(usuario, lambda: self.exibir_tela_perfil(usuario, callback_voltar, usuario_logado, controlador_usuario, is_amigo, solicitacao_existente, callback_enviar_solicitacao))
 
-        # Só mostra "Editar Perfil" se for o usuário logado
         botoes = []
         if usuario_logado and str(usuario_logado.cpf) == str(usuario.cpf):
             botoes.append(("Editar Perfil", comando_editar_perfil))
@@ -228,3 +244,4 @@ class TelaUsuario():
             btn.grid(row=i // 2, column=i % 2, padx=10, pady=8, sticky="ew")
 
         root.mainloop()
+    # --- FIM MÉTODO MODIFICADO ---

@@ -1,3 +1,5 @@
+# controllers/controlador_usuario.py
+
 from models.usuario import Usuario
 from repositories.repositorio_usuario import RepositorioUsuario
 from views.tela_usuario import TelaUsuario
@@ -5,12 +7,17 @@ from datetime import date
 from utils.encryption import cipher
 from controllers.controlador_medalha import ControladorMedalha
 from views.tela_amizades import TelaAmizades
+from repositories.repositorio_solicitacao import RepositorioSolicitacao
+from models.solicitacao import Solicitacao
+from tkinter import messagebox
+
 
 class ControladorUsuario:
     def __init__(self, controlador_sistema):
         self._controlador_sistema = controlador_sistema
         self.tela_usuario = TelaUsuario()
         self._user_repository = RepositorioUsuario()
+        self._solicitacao_repository = RepositorioSolicitacao()
         self._usuario_logado = None
 
     @property
@@ -48,11 +55,7 @@ class ControladorUsuario:
         self._user_repository.criar(user)
         self._usuario_logado = user
 
-
-
-
     def abrir_tela_login(self):
-
         self.tela_usuario.exibir_tela_login(
             callback_login=self.efetuar_login,
             callback_abrir_cadastro=self.abrir_tela_cadastro,
@@ -60,7 +63,6 @@ class ControladorUsuario:
         )
 
     def efetuar_login(self, nome_usuario: str, senha_digitada: str):
-
         if not nome_usuario or not senha_digitada:
             raise ValueError("Nome de usuário e senha são obrigatórios.")
 
@@ -87,11 +89,9 @@ class ControladorUsuario:
         self._usuario_logado = usuario_encontrado
         print(usuario_encontrado.amizades)
 
-
     def chama_sistema(self):
         self._controlador_sistema.inicializarFeed()
 
-    
     def solicitarVisualizarMedalhas(self, usuario, callback_voltar):
         is_logado = self.verificarIdentidade(usuario)
         controlador_medalha = ControladorMedalha(self._controlador_sistema)
@@ -112,19 +112,64 @@ class ControladorUsuario:
         return self._usuario_logado and usuario.cpf == self._usuario_logado.cpf
     
     def solicitarVisualizarAmizades(self, usuario, callback_voltar):
-        lista_amigos = self._user_repository.buscar_amizades_aceitas(usuario.id)
+        # A lista de amigos é a que já está no objeto do usuário
+        lista_amigos = usuario.amizades
         self.tela_amizades = TelaAmizades()
+        
         def abrir_perfil_amigo(amigo):
-            self.tela_usuario.exibir_tela_perfil(
+            self.abrir_tela_perfil(
                 usuario=amigo,
                 callback_voltar=lambda: self.solicitarVisualizarAmizades(usuario, callback_voltar),
-                controlador_usuario=self,
-                usuario_logado=self._usuario_logado
             )
+        
         self.tela_amizades.exibir_amizades(
             lista_amigos,
             callback_voltar,
             callback_abrir_perfil=abrir_perfil_amigo
         )
-    
-    
+
+    def abrir_tela_perfil(self, usuario, callback_voltar):
+        """Abre a tela de perfil, passando todos os callbacks necessários."""
+        
+        # --- CORREÇÃO APLICADA AQUI ---
+        # Não buscamos mais no banco. Usamos a lista de amigos que já está no objeto 'usuario_logado'.
+        # Isso evita a segunda chamada ao banco que causava o erro de transação.
+        ids_amigos = [amigo.id for amigo in self.usuario_logado.amizades]
+        is_amigo = usuario.id in ids_amigos
+        # --- FIM DA CORREÇÃO ---
+
+        # Esta agora é a única chamada ao banco de dados dentro deste método.
+        solicitacao_existente = self._solicitacao_repository.buscar_solicitacao(
+            remetente_id=self.usuario_logado.id,
+            destinatario_id=usuario.id
+        )
+
+        self.tela_usuario.exibir_tela_perfil(
+            usuario=usuario,
+            callback_voltar=callback_voltar,
+            controlador_usuario=self,
+            usuario_logado=self._usuario_logado,
+            is_amigo=is_amigo,
+            solicitacao_existente=solicitacao_existente,
+            callback_enviar_solicitacao=self.enviar_solicitacao_amizade
+        )
+
+    def enviar_solicitacao_amizade(self, destinatario: Usuario):
+        """Verifica e cria uma nova solicitação de amizade."""
+        remetente = self.usuario_logado
+        
+        if remetente.id == destinatario.id:
+            messagebox.showerror("Erro", "Você não pode enviar uma solicitação para si mesmo.")
+            return
+
+        solicitacao_existente = self._solicitacao_repository.buscar_solicitacao(remetente.id, destinatario.id)
+        if solicitacao_existente:
+            if solicitacao_existente['status'] == 'aceito':
+                messagebox.showinfo("Informação", "Vocês já são amigos.")
+            else:
+                messagebox.showinfo("Informação", "Já existe uma solicitação de amizade pendente.")
+            return
+
+        nova_solicitacao = Solicitacao(remetente=remetente, destinatario=destinatario)
+        self._solicitacao_repository.criar(nova_solicitacao)
+        messagebox.showinfo("Sucesso", f"Solicitação de amizade enviada para {destinatario.nome}!")

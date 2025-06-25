@@ -67,18 +67,20 @@ class ControladorSistema:
         print("DEBUG [ControladorSistema.efetuar_logout]: Redirecionando para login.")
         self.controlador_usuario.abrir_tela_login()
 
-    def navegar_para_perfil(self):
-        usuario_logado = self.buscar_usuario_logado()
-        
-        if usuario_logado:
-            self.tela_usuario.exibir_tela_perfil(
-                usuario=usuario_logado,
-                callback_voltar=self.inicializarFeed,
-                controlador_usuario=self.controlador_usuario,
-                usuario_logado=usuario_logado
-            )
-        else:
-            self.iniciar()
+    def navegar_para_perfil(self, usuario, callback_voltar):
+        # --- CORREÇÃO APLICADA AQUI ---
+        # Em vez de chamar a tela diretamente...
+        # self.tela_usuario.exibir_tela_perfil(
+        #     usuario=usuario,
+        #     callback_voltar=callback_voltar,
+        #     controlador_usuario=self.controlador_usuario,
+        #     usuario_logado=self.usuario_logado
+        # )
+        # ...delegamos a responsabilidade para o método centralizador no ControladorUsuario.
+        self.controlador_usuario.abrir_tela_perfil(
+            usuario=usuario,
+            callback_voltar=callback_voltar
+        )
  
     def navegar_para_busca(self):
         print("DEBUG [ControladorSistema]: Navegando para Tela de Busca.")

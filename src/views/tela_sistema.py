@@ -1,14 +1,12 @@
+# views/tela_sistema.py
+
 import tkinter as tk
 from tkinter import messagebox
 from typing import Callable, List
 from datetime import date
-
-# NOVOS IMPORTS PARA A IMAGEM
-import io # Para lidar com bytes da imagem
-import requests # Para baixar a imagem da URL
-from PIL import Image, ImageTk # Para processar e exibir a imagem com Tkinter
-
-import io 
+import io
+import requests
+from PIL import Image, ImageTk
 from models.usuario import Usuario
 from models.treino import Treino
 
@@ -19,7 +17,10 @@ class TelaSistema:
         self.indice_treino_atual = 0
         self.root_sistema: tk.Tk | None = None
         
-        self.lbl_autor_treino: tk.Label | None = None
+        # --- MODIFICADO: Label de autor virou um botão clicável ---
+        self.btn_autor_treino: tk.Button | None = None
+        # --- FIM DA MODIFICAÇÃO ---
+        
         self.lbl_descricao_treino: tk.Label | None = None
         self.lbl_detalhes_treino: tk.Label | None = None
         self.btn_anterior_feed: tk.Button | None = None
@@ -30,6 +31,10 @@ class TelaSistema:
         
         self.controlador_treino_ref = None
         self.usuario_logado_atual = None
+        
+        # --- NOVO: Armazena o callback para uso posterior ---
+        self.callback_abrir_perfil = None
+        # --- FIM NOVO ---
 
     def exibir_tela_principal(self, usuario_logado: Usuario, 
                                   lista_de_treinos: List[Treino],
@@ -39,12 +44,16 @@ class TelaSistema:
                                   callback_abrir_busca: Callable,
                                   callback_registrar_treino: Callable,
                                   callback_rankings: Callable,
-                                  callback_abrir_solicitacoes: Callable): # NOVO CALLBACK AQUI
+                                  callback_abrir_solicitacoes: Callable):
         
         self.treinos = lista_de_treinos 
         self.indice_treino_atual = 0 
         self.controlador_treino_ref = controlador_treino_ref
         self.usuario_logado_atual = usuario_logado
+        
+        # --- NOVO: Armazenando o callback na instância da classe ---
+        self.callback_abrir_perfil = callback_abrir_perfil
+        # --- FIM NOVO ---
 
         self.root_sistema = tk.Tk() 
         self.root_sistema.title(f"Feed - Bem-vindo(a), {usuario_logado.nome}!")
@@ -53,12 +62,15 @@ class TelaSistema:
         frame_navegacao = tk.Frame(self.root_sistema, bd=1, relief=tk.RAISED)
         frame_navegacao.pack(side=tk.TOP, fill=tk.X, pady=(0, 5))
         tk.Label(frame_navegacao, text=f"Usuário: {usuario_logado.nome}", padx=10, font=("Arial", 10)).pack(side=tk.LEFT)
-        tk.Button(frame_navegacao, text="Meu Perfil", command=callback_abrir_perfil).pack(side=tk.LEFT, padx=5, pady=5)
+        
+        # --- CORREÇÃO APLICADA AQUI ---
+        # Usamos lambda para passar os argumentos corretos para o callback
+        tk.Button(frame_navegacao, text="Meu Perfil", command=lambda: self.callback_abrir_perfil(usuario_logado, self.controlador_sistema_ref.inicializarFeed)).pack(side=tk.LEFT, padx=5, pady=5)
+        # --- FIM DA CORREÇÃO ---
+
         tk.Button(frame_navegacao, text="Buscar", command=callback_abrir_busca).pack(side=tk.LEFT, padx=5, pady=5)
         tk.Button(frame_navegacao, text="Registrar Treino", command=callback_registrar_treino).pack(side=tk.LEFT, padx=5, pady=5)
         tk.Button(frame_navegacao, text="Rankings", command=callback_rankings).pack(side=tk.LEFT, padx=5, pady=5)
-        
-        # NOVO BOTÃO DE SOLICITAÇÕES ADICIONADO AQUI
         tk.Button(frame_navegacao, text="Solicitações", command=callback_abrir_solicitacoes).pack(side=tk.LEFT, padx=5, pady=5)
         
         def acao_logout_confirmada():
@@ -76,8 +88,13 @@ class TelaSistema:
         self.lbl_imagem_treino = tk.Label(frame_treino_display)
         self.lbl_imagem_treino.pack(pady=(0, 10)) 
 
-        self.lbl_autor_treino = tk.Label(frame_treino_display, text="", font=("Arial", 10, "italic"), anchor="w")
-        self.lbl_autor_treino.pack(fill=tk.X, pady=(0,2))
+        # --- MODIFICADO: Label de autor virou um botão clicável ---
+        self.btn_autor_treino = tk.Button(frame_treino_display, text="", font=("Arial", 10, "italic"), anchor="w",
+                                          relief=tk.FLAT, cursor="hand2", justify=tk.LEFT,
+                                          activebackground=frame_treino_display.cget('bg'), activeforeground="blue")
+        self.btn_autor_treino.pack(fill=tk.X, pady=(0,2))
+        # --- FIM DA MODIFICAÇÃO ---
+        
         self.lbl_descricao_treino = tk.Label(frame_treino_display, text="", font=("Arial", 14, "bold"), wraplength=750, anchor="w", justify=tk.LEFT)
         self.lbl_descricao_treino.pack(pady=(5,10), fill=tk.X)
         self.lbl_detalhes_treino = tk.Label(frame_treino_display, text="", justify=tk.LEFT, wraplength=750, anchor="w")
@@ -107,15 +124,18 @@ class TelaSistema:
         self.indice_treino_atual = indice
         treino_atual: Treino = self.treinos[self.indice_treino_atual]
 
-        if not all([self.lbl_autor_treino, self.lbl_descricao_treino, self.lbl_detalhes_treino, 
+        # --- MODIFICADO: Verificando o novo botão ---
+        if not all([self.btn_autor_treino, self.lbl_descricao_treino, self.lbl_detalhes_treino, 
                     self.btn_curtir_treino, self.btn_anterior_feed, self.btn_proximo_feed,
                     self.lbl_imagem_treino]):
+        # --- FIM DA MODIFICAÇÃO ---
             print("WARN [TelaSistema.exibirTreino]: Widgets de display não inicializados.")
             return
 
         self.btn_anterior_feed.config(state=tk.NORMAL)
         self.btn_proximo_feed.config(state=tk.NORMAL)
         self.btn_curtir_treino.config(state=tk.NORMAL)
+        self.btn_autor_treino.config(state=tk.NORMAL) # Habilita o botão
         
         if hasattr(treino_atual, 'imagem') and treino_atual.imagem:
             try:
@@ -144,11 +164,23 @@ class TelaSistema:
             self.lbl_imagem_treino.image = None
 
         nome_autor = "Autor Desconhecido"
+        usuario_do_post = None
         if treino_atual.usuario and hasattr(treino_atual.usuario, 'nome'):
             nome_autor = treino_atual.usuario.nome
+            usuario_do_post = treino_atual.usuario
         
         data_formatada = treino_atual.data.strftime('%d/%m/%Y') if treino_atual.data else 'Data não informada'
-        self.lbl_autor_treino.config(text=f"Postado por: {nome_autor} em {data_formatada}")
+        
+        # --- MODIFICADO: Configurando o botão do autor ---
+        if usuario_do_post:
+            self.btn_autor_treino.config(
+                text=f"Postado por: {nome_autor} em {data_formatada}",
+                command=lambda u=usuario_do_post: self.callback_abrir_perfil(u, self.controlador_sistema_ref.inicializarFeed)
+            )
+        else:
+            self.btn_autor_treino.config(text=f"Postado por: {nome_autor} em {data_formatada}", command=lambda: None, state=tk.DISABLED)
+        # --- FIM DA MODIFICAÇÃO ---
+
         self.lbl_descricao_treino.config(text=treino_atual.descricao, font=("Arial", 14, "bold"))
         
         detalhes_str = ""
@@ -159,21 +191,24 @@ class TelaSistema:
         self.btn_curtir_treino.config(text=f"❤️ Curtir ({treino_atual.curtidas})")
 
     def exibirMensagemSemTreinos(self):
-        if not all([self.lbl_autor_treino, self.lbl_descricao_treino, self.lbl_detalhes_treino, 
+        # --- MODIFICADO: Atualizando referência do widget ---
+        if not all([self.btn_autor_treino, self.lbl_descricao_treino, self.lbl_detalhes_treino, 
                     self.btn_curtir_treino, self.btn_anterior_feed, self.btn_proximo_feed,
-                    self.lbl_imagem_treino]): # Adicionado lbl_imagem_treino
+                    self.lbl_imagem_treino]):
+        # --- FIM DA MODIFICAÇÃO ---
             print("WARN [TelaSistema.exibirMensagemSemTreinos]: Widgets de display não inicializados.")
             return
             
-        self.lbl_imagem_treino.config(image=None, text="") # Limpa imagem
+        self.lbl_imagem_treino.config(image=None, text="")
         self.lbl_imagem_treino.image = None
-        self.lbl_autor_treino.config(text="")
+        self.btn_autor_treino.config(text="", state=tk.DISABLED) # Desabilita e limpa o botão
         self.lbl_descricao_treino.config(text="Suas amizades ainda não registraram treinos.", font=("Arial", 12, "italic"))
         self.lbl_detalhes_treino.config(text="")
         self.btn_curtir_treino.config(text="❤️ Curtir", state=tk.DISABLED)
         self.btn_anterior_feed.config(state=tk.DISABLED)
         self.btn_proximo_feed.config(state=tk.DISABLED)
 
+    # O resto da classe (exibirMensagemFimDosTreinos, acao_treino_anterior, etc.) permanece o mesmo.
     def exibirMensagemFimDosTreinos(self):
         """Exibe uma notificação informando que o usuário chegou ao final do feed."""
         if self.root_sistema and self.root_sistema.winfo_exists():
@@ -197,16 +232,12 @@ class TelaSistema:
         exibe uma mensagem informando o início do feed.
         """
         if not self.treinos or len(self.treinos) <= 1: 
-            # Se só tem 0 ou 1 treino, não há "anterior". Pode mostrar a mensagem de início.
             self.exibirMensagemInicioDosTreinos()
             return
         
-        # Verifica se o índice atual JÁ É o primeiro (índice 0)
         if self.indice_treino_atual <= 0:
-            # Se sim, chama a função que exibe a mensagem e não volta mais
             self.exibirMensagemInicioDosTreinos()
         else:
-            # Se não for o primeiro, volta para o índice anterior e exibe o treino
             novo_indice = self.indice_treino_atual - 1
             self.exibirTreino(novo_indice)
 
@@ -217,16 +248,12 @@ class TelaSistema:
         exibe uma mensagem informando o fim do feed.
         """
         if not self.treinos or len(self.treinos) <= 1: 
-            # Se só tem 0 ou 1 treino, não há "próximo". Pode mostrar a mensagem de fim também.
             self.exibirMensagemFimDosTreinos()
             return
         
-        # Verifica se o índice atual JÁ É o último da lista
         if self.indice_treino_atual >= len(self.treinos) - 1:
-            # Se sim, chama a função que exibe a mensagem e não avança mais
             self.exibirMensagemFimDosTreinos()
         else:
-            # Se não for o último, avança para o próximo índice e exibe o treino
             novo_indice = self.indice_treino_atual + 1
             self.exibirTreino(novo_indice)
         
