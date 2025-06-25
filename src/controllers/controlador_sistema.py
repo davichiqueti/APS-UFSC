@@ -3,18 +3,18 @@ from views.tela_sistema import TelaSistema
 from controllers.controlador_usuario import ControladorUsuario
 from controllers.controlador_treino import ControladorTreino
 from controllers.controlador_ranking import ControladorRanking
-from controllers.controlador_solicitacao import ControladorSolicitacao # IMPORTADO AQUI
+from controllers.controlador_solicitacao import ControladorSolicitacao
+from controllers.controlador_busca import ControladorBusca 
 from views.tela_usuario import TelaUsuario
-
-
 class ControladorSistema:
     def __init__(self):
         self.tela_sistema = TelaSistema(self) 
         self.controlador_usuario = ControladorUsuario(self)
         self.controlador_treino = ControladorTreino(self) 
         self.controlador_ranking = ControladorRanking(self)
-        self.controlador_solicitacao = ControladorSolicitacao(self) # INSTANCIADO AQUI
+        self.controlador_solicitacao = ControladorSolicitacao(self) 
         self.tela_usuario = TelaUsuario()
+        self.controlador_busca = ControladorBusca(self)  
 
     def buscar_usuario_logado(self):
         return self.controlador_usuario.usuario_logado
@@ -85,9 +85,7 @@ class ControladorSistema:
     def navegar_para_busca(self):
         print("DEBUG [ControladorSistema]: Navegando para Tela de Busca.")
         if self.tela_sistema: self.tela_sistema.fechar_tela()
-        messagebox.showinfo("Navegação", "Tela de Busca ainda não implementada.")
-        if self.controlador_usuario.usuario_logado: self.inicializarFeed()
-        else: self.iniciar()
+        self.controlador_busca.abrir_tela_busca(callback_voltar=self.inicializarFeed)
 
     def navegar_para_registrar_treino(self):
         print("DEBUG [ControladorSistema]: Navegando para Tela de Registrar Treino.")

@@ -127,6 +127,49 @@ class RepositorioUsuario(RepositorioBase):
         print(f"DEBUG [RepositorioUsuario.busca_por_nome]: Usuário '{nome}' não encontrado.")
         return None
     
+        
+    def buscar_por_nome_parcial(self, nome_parcial: str) -> List[Usuario]:
+        """
+        Busca usuários cujo nome contenha o termo de busca.
+        Não carrega as amizades dos usuários encontrados para otimização.
+        """
+        query = text("""
+        SELECT id, cpf, nome, email, foto, data_nascimento, senha_criptografada
+        FROM usuarios
+        WHERE nome ILIKE :nome_parcial
+        ORDER BY nome
+        """)
+        
+        usuarios_encontrados = []
+        try:
+            with self._conn.begin():
+                # Adiciona '%' para a busca com LIKE
+                param = f"%{nome_parcial}%"
+                resultados = self._conn.execute(query, {"nome_parcial": param}).fetchall()
+
+            for row in resultados:
+                data_nasc_raw = row[5]
+                data_nasc = None
+                if isinstance(data_nasc_raw, str):
+                    try:
+                        data_nasc = date.fromisoformat(data_nasc_raw)
+                    except ValueError:
+                        data_nasc = None
+                elif isinstance(data_nasc_raw, date):
+                    data_nasc = data_nasc_raw
+
+                usuario = Usuario(
+                    id=row[0], cpf=row[1], nome=row[2], email=row[3],
+                    foto=row[4], data_nascimento=data_nasc,
+                    senha_criptografada=row[6],
+                    amizades=[] # Deixamos vazio para performance
+                )
+                usuarios_encontrados.append(usuario)
+        except Exception as e:
+            print(f"ERRO ao buscar usuários por nome parcial: {e}")
+
+        return usuarios_encontrados
+    
     def busca_foto_por_id(self, user_id: int) -> Optional[str]:
         query = text("""
         SELECT foto FROM usuarios WHERE id = :user_id

@@ -231,7 +231,6 @@ class TelaUsuario():
             botoes.append(("Editar Perfil", comando_editar_perfil))
         botoes.append(("Medalhas", comando_medalhas))
         botoes.append(("Amizades", comando_amizades))
-        botoes.append(("Ranking", None))
         botoes.append(("Meus Treinos", None))
 
         for i, (texto, comando) in enumerate(botoes):

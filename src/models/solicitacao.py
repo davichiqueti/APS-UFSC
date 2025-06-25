@@ -1,6 +1,7 @@
 from typing import Optional
 from .usuario import Usuario
 
+
 class Solicitacao:
     def __init__(
         self,
