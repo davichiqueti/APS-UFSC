@@ -3,6 +3,7 @@ from views.tela_sistema import TelaSistema
 from controllers.controlador_usuario import ControladorUsuario
 from controllers.controlador_treino import ControladorTreino
 from controllers.controlador_ranking import ControladorRanking
+from controllers.controlador_solicitacao import ControladorSolicitacao # IMPORTADO AQUI
 from views.tela_usuario import TelaUsuario
 
 
@@ -12,6 +13,7 @@ class ControladorSistema:
         self.controlador_usuario = ControladorUsuario(self)
         self.controlador_treino = ControladorTreino(self) 
         self.controlador_ranking = ControladorRanking(self)
+        self.controlador_solicitacao = ControladorSolicitacao(self) # INSTANCIADO AQUI
         self.tela_usuario = TelaUsuario()
 
     def buscar_usuario_logado(self):
@@ -43,7 +45,8 @@ class ControladorSistema:
                 callback_abrir_perfil=self.navegar_para_perfil,
                 callback_abrir_busca=self.navegar_para_busca,
                 callback_registrar_treino=self.navegar_para_registrar_treino,
-                callback_rankings=self.navegar_para_rankings
+                callback_rankings=self.navegar_para_rankings,
+                callback_abrir_solicitacoes=self.navegar_para_solicitacoes # NOVO CALLBACK ADICIONADO
             )
             
             print("DEBUG [ControladorSistema.inicializarFeed]: Iniciando loop de eventos da TelaSistema...")
@@ -58,7 +61,6 @@ class ControladorSistema:
             self.iniciar()
 
     def efetuar_logout(self):
-
         print("DEBUG [ControladorSistema.efetuar_logout]: Processando logout...")
         if self.tela_sistema: self.tela_sistema.fechar_tela()
         if self.controlador_usuario: self.controlador_usuario._usuario_logado = None 
@@ -70,16 +72,15 @@ class ControladorSistema:
         
         if usuario_logado:
             self.tela_usuario.exibir_tela_perfil(
-                usuario=usuario_logado,  # <-- ESSENCIAL!
-                callback_voltar=self.inicializarFeed,  # ou outra função de voltar
-                controlador_usuario=self.controlador_usuario,  # <-- ESSENCIAL!
-                usuario_logado=usuario_logado  # <-- ESSENCIAL!
+                usuario=usuario_logado,
+                callback_voltar=self.inicializarFeed,
+                controlador_usuario=self.controlador_usuario,
+                usuario_logado=usuario_logado
             )
         else:
             self.iniciar()
-  
+ 
     def navegar_para_busca(self):
-
         print("DEBUG [ControladorSistema]: Navegando para Tela de Busca.")
         if self.tela_sistema: self.tela_sistema.fechar_tela()
         messagebox.showinfo("Navegação", "Tela de Busca ainda não implementada.")
@@ -87,7 +88,6 @@ class ControladorSistema:
         else: self.iniciar()
 
     def navegar_para_registrar_treino(self):
-        # ... (como antes) ...
         print("DEBUG [ControladorSistema]: Navegando para Tela de Registrar Treino.")
         if self.tela_sistema: self.tela_sistema.fechar_tela()
         self.controlador_treino.abrir_tela_registro()
@@ -104,3 +104,10 @@ class ControladorSistema:
             self.inicializarFeed()
         else:
             self.iniciar()
+
+    # NOVO MÉTODO PARA NAVEGAR PARA SOLICITAÇÕES
+    def navegar_para_solicitacoes(self):
+        print("DEBUG [ControladorSistema]: Navegando para Tela de Solicitações.")
+        if self.tela_sistema: self.tela_sistema.fechar_tela()
+        # O callback 'voltar' para a tela de solicitações será o inicializarFeed
+        self.controlador_solicitacao.abrir_tela_solicitacoes(callback_voltar=self.inicializarFeed)

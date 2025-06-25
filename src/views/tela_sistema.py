@@ -26,20 +26,20 @@ class TelaSistema:
         self.btn_proximo_feed: tk.Button | None = None
         self.btn_curtir_treino: tk.Button | None = None
         
-
         self.lbl_imagem_treino: tk.Label | None = None
         
         self.controlador_treino_ref = None
         self.usuario_logado_atual = None
 
     def exibir_tela_principal(self, usuario_logado: Usuario, 
-                               lista_de_treinos: List[Treino],
-                               controlador_treino_ref, 
-                               callback_logout: Callable,
-                               callback_abrir_perfil: Callable,
-                               callback_abrir_busca: Callable,
-                               callback_registrar_treino: Callable,
-                               callback_rankings: Callable):
+                                  lista_de_treinos: List[Treino],
+                                  controlador_treino_ref, 
+                                  callback_logout: Callable,
+                                  callback_abrir_perfil: Callable,
+                                  callback_abrir_busca: Callable,
+                                  callback_registrar_treino: Callable,
+                                  callback_rankings: Callable,
+                                  callback_abrir_solicitacoes: Callable): # NOVO CALLBACK AQUI
         
         self.treinos = lista_de_treinos 
         self.indice_treino_atual = 0 
@@ -50,7 +50,6 @@ class TelaSistema:
         self.root_sistema.title(f"Feed - Bem-vindo(a), {usuario_logado.nome}!")
         self.root_sistema.geometry("800x750") 
 
-
         frame_navegacao = tk.Frame(self.root_sistema, bd=1, relief=tk.RAISED)
         frame_navegacao.pack(side=tk.TOP, fill=tk.X, pady=(0, 5))
         tk.Label(frame_navegacao, text=f"Usuário: {usuario_logado.nome}", padx=10, font=("Arial", 10)).pack(side=tk.LEFT)
@@ -58,11 +57,14 @@ class TelaSistema:
         tk.Button(frame_navegacao, text="Buscar", command=callback_abrir_busca).pack(side=tk.LEFT, padx=5, pady=5)
         tk.Button(frame_navegacao, text="Registrar Treino", command=callback_registrar_treino).pack(side=tk.LEFT, padx=5, pady=5)
         tk.Button(frame_navegacao, text="Rankings", command=callback_rankings).pack(side=tk.LEFT, padx=5, pady=5)
+        
+        # NOVO BOTÃO DE SOLICITAÇÕES ADICIONADO AQUI
+        tk.Button(frame_navegacao, text="Solicitações", command=callback_abrir_solicitacoes).pack(side=tk.LEFT, padx=5, pady=5)
+        
         def acao_logout_confirmada():
             if messagebox.askyesno("Logout", "Tem certeza que deseja sair?", parent=self.root_sistema):
                 callback_logout()
         tk.Button(frame_navegacao, text="Logout", command=acao_logout_confirmada).pack(side=tk.RIGHT, padx=10, pady=5)
-
 
         frame_feed_area = tk.Frame(self.root_sistema, padx=10, pady=10)
         frame_feed_area.pack(expand=True, fill=tk.BOTH)
@@ -80,7 +82,6 @@ class TelaSistema:
         self.lbl_descricao_treino.pack(pady=(5,10), fill=tk.X)
         self.lbl_detalhes_treino = tk.Label(frame_treino_display, text="", justify=tk.LEFT, wraplength=750, anchor="w")
         self.lbl_detalhes_treino.pack(pady=5, fill=tk.X)
-
 
         frame_interacao_feed = tk.Frame(frame_feed_area)
         frame_interacao_feed.pack(pady=10)
@@ -142,7 +143,6 @@ class TelaSistema:
             self.lbl_imagem_treino.config(image=None, text="")
             self.lbl_imagem_treino.image = None
 
-
         nome_autor = "Autor Desconhecido"
         if treino_atual.usuario and hasattr(treino_atual.usuario, 'nome'):
             nome_autor = treino_atual.usuario.nome
@@ -201,18 +201,14 @@ class TelaSistema:
         if self.controlador_treino_ref and hasattr(self.controlador_treino_ref, 'curtir_treino'):
             print(f"DEBUG [TelaSistema.acao_curtir_treino]: Usuário '{self.usuario_logado_atual.nome if self.usuario_logado_atual else 'N/A'}' clicou em curtir para treino ID {treino_atual.id_treino}")
             
-
             foi_nova_curtida_no_backend = self.controlador_treino_ref.curtir_treino(treino_atual.id_treino)
             
             if foi_nova_curtida_no_backend:
-
                 treino_atual.curtidas += 1 
                 self.exibirTreino(self.indice_treino_atual) 
                 print(f"DEBUG [TelaSistema.acao_curtir_treino]: UI atualizada para nova curtida no treino ID {treino_atual.id_treino}.")
             else:
-
                 print(f"INFO [TelaSistema.acao_curtir_treino]: Ação de curtir para treino ID {treino_atual.id_treino} não resultou em novo incremento na UI (já curtido ou erro no backend).")
-
         else:
             print("ERRO [TelaSistema.acao_curtir_treino]: Referência ao ControladorTreino não configurada ou método 'curtir_treino' ausente.")
             messagebox.showerror("Erro Interno", "Não foi possível processar a ação de curtir.", parent=self.root_sistema)
@@ -226,5 +222,3 @@ class TelaSistema:
         if self.root_sistema and self.root_sistema.winfo_exists():
             self.root_sistema.mainloop()
             print("DEBUG [TelaSistema.iniciar_loop_eventos]: Mainloop de root_sistema terminou.")
-
-    
