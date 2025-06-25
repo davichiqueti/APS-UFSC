@@ -33,9 +33,9 @@ class TelaSolicitacao:
         style.configure("TLabel", font=("Arial", 10))
         style.configure("TButton", font=("Arial", 9, "bold"), padding=5)
         style.configure("Header.TLabel", font=("Arial", 14, "bold"))
-        style.configure("Accept.TButton", background="#4CAF50", foreground="white") # Verde
+        style.configure("Accept.TButton", background="#4CAF50", foreground="#4CAF50") # Verde
         style.map("Accept.TButton", background=[('active', '#45a049')])
-        style.configure("Deny.TButton", background="#f44336", foreground="white") # Vermelho
+        style.configure("Deny.TButton", background="#f44336", foreground="#f44336") # Vermelho
         style.map("Deny.TButton", background=[('active', '#e53935')])
 
 
