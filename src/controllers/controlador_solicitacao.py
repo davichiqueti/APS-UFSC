@@ -64,8 +64,6 @@ class ControladorSolicitacao:
             self.tela_solicitacao.exibir_mensagem("Erro", "Usuário não logado!")
             return
 
-        # No seu repositório, o status 'negado' atualiza a solicitação.
-        # Se quisesse remover, poderia adaptar para um método `deletar`.
         sucesso = self.repositorio_solicitacao.atualizar_status(
             remetente_id=remetente.id,
             destinatario_id=destinatario.id,

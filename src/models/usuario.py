@@ -1,5 +1,6 @@
 from datetime import date
 from typing import List, Optional
+from models.medalha import Medalha
 
 
 class Usuario():
@@ -15,7 +16,7 @@ class Usuario():
         data_nascimento: date,
         senha_criptografada: str,
         # TODO: Atualizar tipo para o modelo de medalhas
-        medalhas: List = [],
+        medalhas: List[Medalha] = [],
         amizades: List["Usuario"] = [],
         id: Optional[int] = None
     ):

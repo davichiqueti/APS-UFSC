@@ -1,5 +1,3 @@
-# controllers/controlador_usuario.py
-
 from models.usuario import Usuario
 from repositories.repositorio_usuario import RepositorioUsuario
 from views.tela_usuario import TelaUsuario
@@ -130,15 +128,9 @@ class ControladorUsuario:
 
     def abrir_tela_perfil(self, usuario, callback_voltar):
         """Abre a tela de perfil, passando todos os callbacks necessários."""
-        
-        # --- CORREÇÃO APLICADA AQUI ---
-        # Não buscamos mais no banco. Usamos a lista de amigos que já está no objeto 'usuario_logado'.
-        # Isso evita a segunda chamada ao banco que causava o erro de transação.
         ids_amigos = [amigo.id for amigo in self.usuario_logado.amizades]
         is_amigo = usuario.id in ids_amigos
-        # --- FIM DA CORREÇÃO ---
 
-        # Esta agora é a única chamada ao banco de dados dentro deste método.
         solicitacao_existente = self._solicitacao_repository.buscar_solicitacao(
             remetente_id=self.usuario_logado.id,
             destinatario_id=usuario.id
