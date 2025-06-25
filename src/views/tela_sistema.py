@@ -168,23 +168,49 @@ class TelaSistema:
         self.lbl_imagem_treino.config(image=None, text="") # Limpa imagem
         self.lbl_imagem_treino.image = None
         self.lbl_autor_treino.config(text="")
-        self.lbl_descricao_treino.config(text="Suas conexões ainda não registraram treinos.", font=("Arial", 12, "italic"))
+        self.lbl_descricao_treino.config(text="Suas amizades ainda não registraram treinos.", font=("Arial", 12, "italic"))
         self.lbl_detalhes_treino.config(text="")
         self.btn_curtir_treino.config(text="❤️ Curtir", state=tk.DISABLED)
         self.btn_anterior_feed.config(state=tk.DISABLED)
         self.btn_proximo_feed.config(state=tk.DISABLED)
 
+    def exibirMensagemFimDosTreinos(self):
+        """Exibe uma notificação informando que o usuário chegou ao final do feed."""
+        if self.root_sistema and self.root_sistema.winfo_exists():
+            messagebox.showinfo(
+                "",
+                "Você já visualizou todos os treinos",
+                parent=self.root_sistema
+            )
+
     def acao_treino_anterior(self):
         if not self.treinos or len(self.treinos) <= 1: return 
         novo_indice = self.indice_treino_atual - 1
-        if novo_indice < 0: novo_indice = len(self.treinos) - 1 
+        if novo_indice < 0:
+             # Se quiser que o botão "Anterior" também pare no início, você pode adicionar uma mensagem aqui.
+             # Por exemplo: messagebox.showinfo("Início do Feed", "Você já está no primeiro treino.", parent=self.root_sistema)
+             # Ou fazer o loop para o final, como está agora:
+            novo_indice = len(self.treinos) - 1 
         self.exibirTreino(novo_indice)
 
     def acao_treino_proximo(self):
-        if not self.treinos or len(self.treinos) <= 1: return
-        novo_indice = self.indice_treino_atual + 1
-        if novo_indice >= len(self.treinos): novo_indice = 0
-        self.exibirTreino(novo_indice)
+        """
+        Avança para o próximo treino na lista. Se estiver no último,
+        exibe uma mensagem informando o fim do feed.
+        """
+        if not self.treinos or len(self.treinos) <= 1: 
+            # Se só tem 0 ou 1 treino, não há "próximo". Pode mostrar a mensagem de fim também.
+            self.exibirMensagemFimDosTreinos()
+            return
+        
+        # Verifica se o índice atual JÁ É o último da lista
+        if self.indice_treino_atual >= len(self.treinos) - 1:
+            # Se sim, chama a função que exibe a mensagem e não avança mais
+            self.exibirMensagemFimDosTreinos()
+        else:
+            # Se não for o último, avança para o próximo índice e exibe o treino
+            novo_indice = self.indice_treino_atual + 1
+            self.exibirTreino(novo_indice)
         
     def acao_curtir_treino(self):
         if not self.root_sistema or not self.root_sistema.winfo_exists(): return 
