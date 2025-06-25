@@ -182,16 +182,34 @@ class TelaSistema:
                 "Você já visualizou todos os treinos",
                 parent=self.root_sistema
             )
+    def exibirMensagemInicioDosTreinos(self):
+        """Exibe uma notificação informando que o usuário chegou ao início do feed."""
+        if self.root_sistema and self.root_sistema.winfo_exists():
+            messagebox.showinfo(
+                "Início do Feed", 
+                "Você já está no primeiro treino do feed!",
+                parent=self.root_sistema
+            )
 
     def acao_treino_anterior(self):
-        if not self.treinos or len(self.treinos) <= 1: return 
-        novo_indice = self.indice_treino_atual - 1
-        if novo_indice < 0:
-             # Se quiser que o botão "Anterior" também pare no início, você pode adicionar uma mensagem aqui.
-             # Por exemplo: messagebox.showinfo("Início do Feed", "Você já está no primeiro treino.", parent=self.root_sistema)
-             # Ou fazer o loop para o final, como está agora:
-            novo_indice = len(self.treinos) - 1 
-        self.exibirTreino(novo_indice)
+        """
+        Volta para o treino anterior na lista. Se estiver no primeiro,
+        exibe uma mensagem informando o início do feed.
+        """
+        if not self.treinos or len(self.treinos) <= 1: 
+            # Se só tem 0 ou 1 treino, não há "anterior". Pode mostrar a mensagem de início.
+            self.exibirMensagemInicioDosTreinos()
+            return
+        
+        # Verifica se o índice atual JÁ É o primeiro (índice 0)
+        if self.indice_treino_atual <= 0:
+            # Se sim, chama a função que exibe a mensagem e não volta mais
+            self.exibirMensagemInicioDosTreinos()
+        else:
+            # Se não for o primeiro, volta para o índice anterior e exibe o treino
+            novo_indice = self.indice_treino_atual - 1
+            self.exibirTreino(novo_indice)
+
 
     def acao_treino_proximo(self):
         """
