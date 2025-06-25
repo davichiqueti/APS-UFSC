@@ -138,7 +138,7 @@ class TelaUsuario():
 
 
     def exibir_tela_perfil(self, usuario, callback_voltar, usuario_logado=None, controlador_usuario=None):
-        root = tk.Toplevel()
+        root = tk.Tk()
         root.title("Perfil do Usuário")
         root.geometry("500x600")
         root.configure(bg="#222222")
