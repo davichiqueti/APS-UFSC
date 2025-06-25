@@ -54,7 +54,9 @@ class TelaTreino:
         def carregar_imagem():
             path = filedialog.askopenfilename(
                 title="Selecione uma imagem",
-                filetypes=(("Imagens", "*.jpg *.jpeg *.png *.gif"), ("Todos", "*.*"))
+                filetypes=[
+                    ("Imagens", "*.jpg *.jpeg *.png"),
+                ]
             )
             if path:
                 # Faz o upload para o Cloudinary
